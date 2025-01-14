@@ -120,6 +120,8 @@ async function init(ws, clientId) {
 
     const { exec } = require("child_process");
 
+    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => {});
+
     ws.send(
       JSON.stringify({
         type: "status",
@@ -129,17 +131,19 @@ async function init(ws, clientId) {
       })
     );
 
-    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => {
-      console.log(`Trying to connect in 10 secs`);
-      await init(ws, clientId).catch((initError) => {
-        ws.send(
-          JSON.stringify({
-            type: "error",
-            message: `Failed to connect try again after 10 sec`,
-          })
-        );
-      });
-    });
+
+    setTimeout(() => {
+      ws.send(
+        JSON.stringify({
+          type: "clientId",
+          ready: true,
+          message: `Refresh or reload the page after 10 seconds`,
+          source: "socket",
+        })
+      );
+    },1000 * 10)
+
+   
   }
 
 }
