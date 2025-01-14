@@ -20,54 +20,10 @@ wss.on("connection", (ws) => {
   ws.on("message", async (message) => {
     const data = JSON.parse(message);
 
-    if (data.type === "disconnect") {
-      const clientId = data.clientId;
-
-      if (clients[clientId]) {
-        try {
-          // Destroy the WhatsApp client instance
-          await clients[clientId].whatsappClient.destroy();
-
-          console.log(`WhatsApp client destroyed for ID: ${clientId}`);
-
-          // Send a success message back to the client
-          ws.send(
-            JSON.stringify({
-              type: "status",
-              ready: false,
-              message: `WhatsApp client with ID ${clientId} has been disconnected.`,
-            })
-          );
-        } catch (error) {
-          console.error(
-            `Error destroying WhatsApp client for ${clientId}:`,
-            error.message
-          );
-
-          // Send an error message back to the client
-          ws.send(
-            JSON.stringify({
-              type: "status",
-              ready: false,
-              message: `Error disconnecting WhatsApp client for ID ${clientId}: ${error.message}`,
-            })
-          );
-        }
-      } else {
-        console.warn(`Client ID ${clientId} not found.`);
-        ws.send(
-          JSON.stringify({
-            type: "status",
-            ready: false,
-            message: `Client ID ${clientId} not found.`,
-          })
-        );
-      }
-    }
-
     if (data.type === "clientId") {
       const clientId = data.clientId;
       console.log(`Client connected with ID: ${clientId}`);
+      await clients[clientId].whatsappClient.destroy();
 
       // Store WebSocket connection and initialize WhatsApp client
       await init(ws, clientId);
