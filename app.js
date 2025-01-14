@@ -158,38 +158,40 @@ async function init(ws, clientId) {
     });
   }
 
-  // API to send a message for a specific client
-  app.post("/api/send-message", async (req, res) => {
-    const { clientId, phone, message } = req.body;
+}
 
-    if (!clients[clientId] || !clients[clientId].isClientReady) {
-      return res
-        .status(400)
-        .json({ success: false, message: "WhatsApp client is expired." });
-    }
+// API to send a message for a specific client
+app.post("/api/send-message", async (req, res) => {
+  const { clientId, phone, message } = req.body;
 
-    try {
-      const formattedPhone = `${phone}@c.us`; // Format phone number
-      await clients[clientId].whatsappClient.sendMessage(formattedPhone, message);
-      res.json({ success: true, message: "Message sent successfully!" });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to send message.",
-        error: error.message,
-      });
-    }
-  });
+  if (!clients[clientId] || !clients[clientId].isClientReady) {
+    return res
+      .status(400)
+      .json({ success: false, message: "WhatsApp client is expired." });
+  }
 
-  // Serve client.html
-  app.get("/server", (req, res) => {
-    // after build how to use
-    res.sendFile(path.join(__dirname, "dist", "index.html"));
-  });
+  try {
+    const formattedPhone = `${phone}@c.us`; // Format phone number
+    await clients[clientId].whatsappClient.sendMessage(formattedPhone, message);
+    res.json({ success: true, message: "Message sent successfully!" });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send message.",
+      error: error.message,
+    });
+  }
+});
 
-  // Start the server
-  const port = 5176;
-  app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
+// Serve client.html
+app.get("/server", (req, res) => {
+  // after build how to use
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+// Start the server
+const port = 5176;
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
