@@ -120,30 +120,16 @@ async function init(ws, clientId) {
 
     const { exec } = require("child_process");
 
-    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => {});
+    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => { });
 
     ws.send(
       JSON.stringify({
-        type: "status",
+        type: "clientId",
         ready: true,
         message: `Refresh or reload the page after 10 seconds`,
         source: "socket",
       })
     );
-
-
-    setTimeout(() => {
-      ws.send(
-        JSON.stringify({
-          type: "clientId",
-          ready: true,
-          message: `Refresh or reload the page after 10 seconds`,
-          source: "socket",
-        })
-      );
-    },1000 * 10)
-
-   
   }
 
 }
