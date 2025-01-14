@@ -72,18 +72,18 @@ wss.on("connection", (ws) => {
       // Store WebSocket connection and initialize WhatsApp client
       await init(ws, clientId);
       clients[clientId] = { ws, ...clients[clientId] };
-      // if (!clients[clientId].whatsappClient) {
-      //   await init(ws, clientId);
-      // } else {
-      //   console.log(`Client ${clientId} already initialized.`);
-      //   ws.send(
-      //     JSON.stringify({
-      //       type: "status",
-      //       ready: true,
-      //       message: `Client ${clientId} already initialized.`,
-      //     })
-      //   );
-      // }
+      if (!clients[clientId].whatsappClient) {
+        await init(ws, clientId);
+      } else {
+        console.log(`Client ${clientId} already initialized.`);
+        ws.send(
+          JSON.stringify({
+            type: "status",
+            ready: true,
+            message: `Client ${clientId} already initialized.`,
+          })
+        );
+      }
     }
   });
 
@@ -159,6 +159,12 @@ async function init(ws, clientId) {
         JSON.stringify({ type: "error", message: `Disconnected: ${reason}` })
       );
       delete clients[clientId];
+
+      const sessionDir = path.join(".wwebjs_auth", `session-${clientId}`);
+      if (fs.existsSync(sessionDir)) {
+        fs.rmSync(sessionDir, { recursive: true, force: true });
+        console.log(`Cleaned up session directory for client ${clientId}`);
+      }
     });
 
     // Save the client
