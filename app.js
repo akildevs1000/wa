@@ -114,29 +114,29 @@ async function init(ws, clientId) {
   } catch (error) {
 
     // Restart the PM2 process and reinitialize
-    const pm2ProcessId = 13; // Replace with your PM2 process ID
+    // const pm2ProcessId = 13; // Replace with your PM2 process ID
 
-    const { exec } = require("child_process");
+    // const { exec } = require("child_process");
 
     ws.send(
       JSON.stringify({
         type: "error",
-        message: `Reconnecting in 10 secs again`,
+        message: `Server Error`,
       })
     );
 
-    setTimeout(() => {
-      exec(`pm2 reload ${pm2ProcessId} --force`, (err, stdout, stderr) => {
-        init(ws, clientId).catch((initError) => {
-          ws.send(
-            JSON.stringify({
-              type: "error",
-              message: `Failed to connect try again after 10 sec`,
-            })
-          );
-        });
-      });
-    }, 1000 * 10);
+    // setTimeout(() => {
+    //   exec(`pm2 reload ${pm2ProcessId} --force`, (err, stdout, stderr) => {
+    //     init(ws, clientId).catch((initError) => {
+    //       ws.send(
+    //         JSON.stringify({
+    //           type: "error",
+    //           message: `Failed to connect try again after 10 sec`,
+    //         })
+    //       );
+    //     });
+    //   });
+    // }, 1000 * 10);
   }
 
 }
