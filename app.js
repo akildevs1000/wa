@@ -113,47 +113,83 @@ async function init(ws, clientId) {
     await whatsappClient.initialize();
   } catch (error) {
     console.error(`Error initializing client ${clientId}:`, error);
+
+    // Send error message to WebSocket
     ws.send(
       JSON.stringify({
         type: "error",
         message: `Initialization error: ${error.message}`,
       })
     );
-  }
-}
 
-// API to send a message for a specific client
-app.post("/api/send-message", async (req, res) => {
-  const { clientId, phone, message } = req.body;
+    // Restart the PM2 process and reinitialize
+    const pm2ProcessId = 13; // Replace with your PM2 process ID
+    const exec = require("child_process").exec;
 
-  if (!clients[clientId] || !clients[clientId].isClientReady) {
-    return res
-      .status(400)
-      .json({ success: false, message: "WhatsApp client is expired." });
-  }
+    console.log(`Attempting to reload PM2 process ${pm2ProcessId}...`);
 
-  try {
-    const formattedPhone = `${phone}@c.us`; // Format phone number
-    await clients[clientId].whatsappClient.sendMessage(formattedPhone, message);
-    res.json({ success: true, message: "Message sent successfully!" });
-  } catch (error) {
-    console.error("Error sending message:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to send message.",
-      error: error.message,
+    exec(`pm2 reload ${pm2ProcessId}`, (err, stdout, stderr) => {
+      if (err) {
+        console.error(`Failed to reload PM2 process: ${stderr}`);
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: `Failed to reload PM2 process: ${stderr}`,
+          })
+        );
+        return;
+      }
+
+      console.log(`PM2 process ${pm2ProcessId} reloaded successfully: ${stdout}`);
+
+      // Call init method again after a short delay to ensure process restarts
+      setTimeout(() => {
+        console.log(`Reinitializing client ${clientId}...`);
+        init(ws, clientId).catch((initError) => {
+          console.error(`Reinitialization failed for client ${clientId}:`, initError);
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              message: `Reinitialization error: ${initError.message}`,
+            })
+          );
+        });
+      }, 5000); // Wait 5 seconds before reinitializing
     });
   }
-});
 
-// Serve client.html
-app.get("/server", (req, res) => {
-  // after build how to use
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
+  // API to send a message for a specific client
+  app.post("/api/send-message", async (req, res) => {
+    const { clientId, phone, message } = req.body;
 
-// Start the server
-const port = 5176;
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+    if (!clients[clientId] || !clients[clientId].isClientReady) {
+      return res
+        .status(400)
+        .json({ success: false, message: "WhatsApp client is expired." });
+    }
+
+    try {
+      const formattedPhone = `${phone}@c.us`; // Format phone number
+      await clients[clientId].whatsappClient.sendMessage(formattedPhone, message);
+      res.json({ success: true, message: "Message sent successfully!" });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to send message.",
+        error: error.message,
+      });
+    }
+  });
+
+  // Serve client.html
+  app.get("/server", (req, res) => {
+    // after build how to use
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
+  });
+
+  // Start the server
+  const port = 5176;
+  app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
