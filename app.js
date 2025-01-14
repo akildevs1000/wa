@@ -72,7 +72,7 @@ wss.on("connection", (ws) => {
       // Store WebSocket connection and initialize WhatsApp client
       await init(ws, clientId);
       clients[clientId] = { ws, ...clients[clientId] };
-      if (!clients[clientId].whatsappClient) {
+      if (!clients[clientId] && !clients[clientId].whatsappClient) {
         await init(ws, clientId);
       } else {
         console.log(`Client ${clientId} already initialized.`);
