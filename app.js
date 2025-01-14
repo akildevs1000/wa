@@ -52,11 +52,11 @@ async function init(ws, clientId) {
   );
   try {
 
-    const sessionDir = path.join(".wwebjs_auth", `session-${clientId}`);
-    if (fs.existsSync(sessionDir)) {
-      fs.rmSync(sessionDir, { recursive: true, force: true });
-      console.log(`Cleaned up session directory for client ${clientId}`);
-    }
+    // const sessionDir = path.join(".wwebjs_auth", `session-${clientId}`);
+    // if (fs.existsSync(sessionDir)) {
+    //   fs.rmSync(sessionDir, { recursive: true, force: true });
+    //   console.log(`Cleaned up session directory for client ${clientId}`);
+    // }
 
     const whatsappClient = new Client({
       authStrategy: new LocalAuth({ clientId }),
@@ -100,23 +100,24 @@ async function init(ws, clientId) {
       );
       delete clients[clientId];
 
-      const sessionDir = path.join(".wwebjs_auth", `session-${clientId}`);
-      if (fs.existsSync(sessionDir)) {
-        fs.rmSync(sessionDir, { recursive: true, force: true });
-        console.log(`Cleaned up session directory for client ${clientId}`);
-      }
+      // const sessionDir = path.join(".wwebjs_auth", `session-${clientId}`);
+      // if (fs.existsSync(sessionDir)) {
+      //   fs.rmSync(sessionDir, { recursive: true, force: true });
+      //   console.log(`Cleaned up session directory for client ${clientId}`);
+      // }
     });
 
     // Save the client
     clients[clientId] = { whatsappClient, ws, isClientReady: false };
     // console.log("🚀 ~ whatsappClient.on ~ clients[clientId]:", clients[clientId])
     await whatsappClient.initialize();
+
   } catch (error) {
 
     // Restart the PM2 process and reinitialize
 
     const pm2ProcessId = 13; // Replace with your PM2 process ID
-    
+
     const { exec } = require("child_process");
 
     ws.send(
@@ -128,19 +129,17 @@ async function init(ws, clientId) {
       })
     );
 
-    setTimeout(() => {
-      exec(`pm2 reload ${pm2ProcessId}`, (err, stdout, stderr) => {
-        console.log(`Trying to connect in 10 secs`);
-        init(ws, clientId).catch((initError) => {
-          ws.send(
-            JSON.stringify({
-              type: "error",
-              message: `Failed to connect try again after 10 sec`,
-            })
-          );
-        });
+    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => {
+      console.log(`Trying to connect in 10 secs`);
+      await init(ws, clientId).catch((initError) => {
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: `Failed to connect try again after 10 sec`,
+          })
+        );
       });
-    }, 1000 * 10);
+    });
   }
 
 }
