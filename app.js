@@ -121,7 +121,7 @@ async function init(ws, clientId) {
     ws.send(
       JSON.stringify({
         type: "error",
-        message: `Reconnecting in 10 sec`,
+        message: `Reconnecting in 10 secs again`,
       })
     );
 
@@ -136,7 +136,7 @@ async function init(ws, clientId) {
           );
         });
       });
-    });
+    }, 1000 * 10);
   }
 
 }
