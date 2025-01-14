@@ -120,23 +120,27 @@ async function init(ws, clientId) {
 
     ws.send(
       JSON.stringify({
-        type: "error",
-        message: `Server Error`,
+        type: "status",
+        ready: true,
+        message: `Trying to connect in 10 secs`,
+        source: "socket",
       })
     );
 
-    // setTimeout(() => {
-    //   exec(`pm2 reload ${pm2ProcessId} --force`, (err, stdout, stderr) => {
-    //     init(ws, clientId).catch((initError) => {
-    //       ws.send(
-    //         JSON.stringify({
-    //           type: "error",
-    //           message: `Failed to connect try again after 10 sec`,
-    //         })
-    //       );
-    //     });
-    //   });
-    // }, 1000 * 10);
+    setTimeout(() => {
+      exec(`pm2 reload ${pm2ProcessId}`, (err, stdout, stderr) => {
+        console.log(`Trying to connect in 10 secs`);
+
+        init(ws, clientId).catch((initError) => {
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              message: `Failed to connect try again after 10 sec`,
+            })
+          );
+        });
+      });
+    }, 1000 * 10);
   }
 
 }
