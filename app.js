@@ -44,25 +44,25 @@ server.listen(5175, () => {
 
 async function init(ws, clientId) {
   try {
-    if (clients[clientId] && clients[clientId].whatsappClient) {
-      ws.send(
-        JSON.stringify({
-          type: "status",
-          ready: true,
-          message: `Client ${clientId} already initialized from init function.`,
-          source: "socket",
-        })
-      );
+    // if (clients[clientId] && clients[clientId].whatsappClient) {
+    //   ws.send(
+    //     JSON.stringify({
+    //       type: "status",
+    //       ready: true,
+    //       message: `Client ${clientId} already initialized from init function.`,
+    //       source: "socket",
+    //     })
+    //   );
 
-      return;
-    }
+    //   return;
+    // }
 
     const whatsappClient = new Client({
       authStrategy: new LocalAuth({ clientId }),
-      puppeteer: {
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        executablePath: "/snap/bin/chromium", // Replace with your Chromium path
-      },
+      // puppeteer: {
+      //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      //   executablePath: "/snap/bin/chromium", // Replace with your Chromium path
+      // },
     });
 
     // Add event listeners
