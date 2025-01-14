@@ -112,49 +112,23 @@ async function init(ws, clientId) {
     // console.log("🚀 ~ whatsappClient.on ~ clients[clientId]:", clients[clientId])
     await whatsappClient.initialize();
   } catch (error) {
-    console.error(`Error initializing client ${clientId}:`, error);
-
-    // Send error message to WebSocket
-    ws.send(
-      JSON.stringify({
-        type: "error",
-        message: `Initialization error: ${error.message}`,
-      })
-    );
 
     // Restart the PM2 process and reinitialize
     const pm2ProcessId = 13; // Replace with your PM2 process ID
-    const exec = require("child_process").exec;
 
-    console.log(`Attempting to reload PM2 process ${pm2ProcessId}...`);
+    const { exec } = require("child_process");
 
-    exec(`pm2 reload ${pm2ProcessId}`, (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Failed to reload PM2 process: ${stderr}`);
-        ws.send(
-          JSON.stringify({
-            type: "error",
-            message: `Failed to reload PM2 process: ${stderr}`,
-          })
-        );
-        return;
-      }
-
-      console.log(`PM2 process ${pm2ProcessId} reloaded successfully: ${stdout}`);
-
-      // Call init method again after a short delay to ensure process restarts
-      setTimeout(() => {
-        console.log(`Reinitializing client ${clientId}...`);
+    setTimeout(() => {
+      exec(`pm2 reload ${pm2ProcessId} --force`, (err, stdout, stderr) => {
         init(ws, clientId).catch((initError) => {
-          console.error(`Reinitialization failed for client ${clientId}:`, initError);
           ws.send(
             JSON.stringify({
               type: "error",
-              message: `Reinitialization error: ${initError.message}`,
+              message: `Failed to connect try again after 10 sec`,
             })
           );
         });
-      }, 5000); // Wait 5 seconds before reinitializing
+      });
     });
   }
 
