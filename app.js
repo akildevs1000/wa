@@ -19,27 +19,9 @@ let clients = {}; // Store clients by client id
 wss.on("connection", (ws) => {
   ws.on("message", async (message) => {
     const data = JSON.parse(message);
-
     if (data.type === "clientId") {
       const clientId = data.clientId;
-      console.log(`Client connected with ID: ${clientId}`);
-      await clients[clientId].whatsappClient.destroy();
-
-      // Store WebSocket connection and initialize WhatsApp client
       await init(ws, clientId);
-      clients[clientId] = { ws, ...clients[clientId] };
-      if (!clients[clientId] && !clients[clientId].whatsappClient) {
-        await init(ws, clientId);
-      } else {
-        console.log(`Client ${clientId} already initialized.`);
-        ws.send(
-          JSON.stringify({
-            type: "status",
-            ready: true,
-            message: `Client ${clientId} already initialized.`,
-          })
-        );
-      }
     }
   });
 
@@ -67,7 +49,7 @@ async function init(ws, clientId) {
         JSON.stringify({
           type: "status",
           ready: true,
-          message: `Client ${clientId} already initialized.`,
+          message: `Client ${clientId} already initialized from init function.`,
           source: "socket",
         })
       );
