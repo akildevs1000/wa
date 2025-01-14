@@ -118,6 +118,13 @@ async function init(ws, clientId) {
 
     const { exec } = require("child_process");
 
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: `Reconnecting in 10 sec`,
+      })
+    );
+
     setTimeout(() => {
       exec(`pm2 reload ${pm2ProcessId} --force`, (err, stdout, stderr) => {
         init(ws, clientId).catch((initError) => {
