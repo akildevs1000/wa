@@ -121,10 +121,10 @@ async function init(ws, clientId) {
 
     const whatsappClient = new Client({
       authStrategy: new LocalAuth({ clientId }),
-      // puppeteer: {
-      //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      //   executablePath: "/snap/bin/chromium", // Replace with your Chromium path
-      // },
+      puppeteer: {
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        executablePath: "/snap/bin/chromium", // Replace with your Chromium path
+      },
     });
 
     // Add event listeners
