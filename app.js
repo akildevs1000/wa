@@ -42,7 +42,6 @@ server.listen(5175, () => {
 });
 
 async function init(ws, clientId) {
-
   ws.send(
     JSON.stringify({
       type: "status",
@@ -51,25 +50,18 @@ async function init(ws, clientId) {
       source: "socket",
     })
   );
-
-  console.log("🚀 ~ init ~ clientId:", clientId)
   try {
-    // if (clients[clientId] && clients[clientId].whatsappClient) {
-    //   ws.send(
-    //     JSON.stringify({
-    //       type: "status",
-    //       ready: true,
-    //       message: `Client ${clientId} already initialized from init function.`,
-    //       source: "socket",
-    //     })
-    //   );
 
-    //   return;
-    // }
+    const sessionDir = path.join(".wwebjs_auth", `session-${clientId}`);
+    if (fs.existsSync(sessionDir)) {
+      fs.rmSync(sessionDir, { recursive: true, force: true });
+      console.log(`Cleaned up session directory for client ${clientId}`);
+    }
 
     const whatsappClient = new Client({
       authStrategy: new LocalAuth({ clientId }),
       puppeteer: {
+        headless: true,
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
         executablePath: "/snap/bin/chromium", // Replace with your Chromium path
       },
