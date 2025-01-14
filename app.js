@@ -20,8 +20,7 @@ wss.on("connection", (ws) => {
   ws.on("message", async (message) => {
     const data = JSON.parse(message);
     if (data.type === "clientId") {
-      const clientId = data.clientId;
-      await init(ws, clientId);
+      await init(ws, data.clientId);
     }
   });
 
@@ -43,6 +42,17 @@ server.listen(5175, () => {
 });
 
 async function init(ws, clientId) {
+
+  ws.send(
+    JSON.stringify({
+      type: "status",
+      ready: true,
+      message: `Connecting to whatsapp...`,
+      source: "socket",
+    })
+  );
+
+  console.log("🚀 ~ init ~ clientId:", clientId)
   try {
     // if (clients[clientId] && clients[clientId].whatsappClient) {
     //   ws.send(
@@ -59,10 +69,10 @@ async function init(ws, clientId) {
 
     const whatsappClient = new Client({
       authStrategy: new LocalAuth({ clientId }),
-      // puppeteer: {
-      //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      //   executablePath: "/snap/bin/chromium", // Replace with your Chromium path
-      // },
+      puppeteer: {
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        executablePath: "/snap/bin/chromium", // Replace with your Chromium path
+      },
     });
 
     // Add event listeners
@@ -107,7 +117,7 @@ async function init(ws, clientId) {
 
     // Save the client
     clients[clientId] = { whatsappClient, ws, isClientReady: false };
-    console.log("🚀 ~ whatsappClient.on ~ clients[clientId]:", clients[clientId].isClientReady)
+    // console.log("🚀 ~ whatsappClient.on ~ clients[clientId]:", clients[clientId])
     await whatsappClient.initialize();
   } catch (error) {
     console.error(`Error initializing client ${clientId}:`, error);
