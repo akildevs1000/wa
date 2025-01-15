@@ -113,33 +113,24 @@ async function init(ws, clientId) {
     await whatsappClient.initialize();
 
   } catch (error) {
+
+    const pm2ProcessId = 13; // Replace with your PM2 process ID
+
+    const { exec } = require("child_process");
+
+    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => { });
+
+
     console.log("🚀 ~ init ~ error:", error)
 
     ws.send(
       JSON.stringify({
-        type: "clientId",
+        type: "status",
         ready: true,
         message: `Refresh or reload the page after 10 seconds`,
         source: "socket",
       })
     );
-
-    // Restart the PM2 process and reinitialize
-
-    // const pm2ProcessId = 13; // Replace with your PM2 process ID
-
-    // const { exec } = require("child_process");
-
-    // exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => { });
-
-    // ws.send(
-    //   JSON.stringify({
-    //     type: "clientId",
-    //     ready: true,
-    //     message: `Refresh or reload the page after 10 seconds`,
-    //     source: "socket",
-    //   })
-    // );
   }
 
 }
