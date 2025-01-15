@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-dialog persistent :key="dialogKey" v-model="dialog" width="900">
+    <v-dialog persistent v-model="dialog" width="900">
       <AssetsIconClose
         left="890"
         @click="
@@ -14,8 +14,8 @@
       <template v-slot:activator="{ on, attr }">
         <v-row align="center">
           <v-col cols="12" class="text-center">
-            <v-btn v-bind="attr" v-on="on">
-              <v-icon small color="primary"> mdi-plus</v-icon> Add
+            <v-btn small class="primary" v-bind="attr" v-on="on">
+              <v-icon small> mdi-plus</v-icon> Account
             </v-btn>
           </v-col>
         </v-row>
@@ -67,14 +67,15 @@
             <v-row>
               <v-col cols="12">
                 <div class="headline mb-5">
-                  Whatsapp Proxy {{ dialogKey }} {{ clientId }}
+                  Whatsapp Proxy
+                  <!-- {{ dialogKey }} {{ clientId }} -->
                 </div>
 
                 <v-avatar v-if="qrCodeUrl" size="200" tile>
                   <v-img :src="qrCodeUrl" />
                 </v-avatar>
               </v-col>
-              <v-col cols="12" v-if="isRegenerate">
+              <v-col cols="12" v-if="statusMessage !== 'Client is ready.'">
                 <v-btn
                   @click="regenerateClientId"
                   :loading="regenerateLoading"
@@ -84,7 +85,7 @@
                 >
               </v-col>
 
-              <v-col v-if="!qrCodeUrl" cols="12">
+              <v-col cols="12">
                 <div class="white ma-2" dense>
                   <v-badge
                     x-small
@@ -96,7 +97,7 @@
                   <span>{{ statusMessage }}</span>
 
                   <!-- i want to rorate this v-con  -->
-                  <v-icon v-if="loading" class="rotate" color="primary"
+                  <v-icon v-if="loading && statusMessage !== 'Client is ready.'" class="rotate" color="primary"
                     >mdi-sync</v-icon
                   >
                 </div>
@@ -169,19 +170,18 @@ export default {
       isConnected: false,
 
       qrImage: null,
-      isRegenerate: false,
+      isRegenerate: true,
     };
   },
   async mounted() {
     // // Initialize clientId to an empty string
-    this.clientId = "";
-    // Check if a clientId exists in localStorage
-    let clientId = localStorage.getItem("clientId");
-    clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem("clientId", clientId);
-    this.connectToWebSocket(clientId);
-
-    console.log("🚀 ~ mounted ~ mounted:", this.dialogKey);
+    // this.clientId = "";
+    // // Check if a clientId exists in localStorage
+    // let clientId = localStorage.getItem("clientId");
+    // clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
+    // localStorage.setItem("clientId", clientId);
+    // this.connectToWebSocket(clientId);
+    // console.log("🚀 ~ mounted ~ mounted:", this.dialogKey);
   },
   methods: {
     regenerateClientId() {
@@ -238,13 +238,7 @@ export default {
       this.ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        if (data.qr == undefined) {
-          this.qrCodeUrl = null;
-          this.statusMessage = ``;
-          this.loading = false;
-          this.statusColor = "";
-          this.isRegenerate = true;
-        } else if (data.type === "qr" || data.type === "clientId") {
+        if (data.qr !== undefined) {
           this.qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
             data.qr
           )}`;
@@ -264,6 +258,7 @@ export default {
           this.statusMessage = `Error: ${data.message}`;
           this.loading = false;
           this.statusColor = "error";
+          this.isRegenerate = true;
         }
       };
 
