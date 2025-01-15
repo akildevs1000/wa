@@ -116,20 +116,20 @@ async function init(ws, clientId) {
 
     // Restart the PM2 process and reinitialize
 
-    const pm2ProcessId = 13; // Replace with your PM2 process ID
+    // const pm2ProcessId = 13; // Replace with your PM2 process ID
 
-    const { exec } = require("child_process");
+    // const { exec } = require("child_process");
 
-    exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => { });
+    // exec(`pm2 reload ${pm2ProcessId}`, async (err, stdout, stderr) => { });
 
-    ws.send(
-      JSON.stringify({
-        type: "clientId",
-        ready: true,
-        message: `Refresh or reload the page after 10 seconds`,
-        source: "socket",
-      })
-    );
+    // ws.send(
+    //   JSON.stringify({
+    //     type: "clientId",
+    //     ready: true,
+    //     message: `Refresh or reload the page after 10 seconds`,
+    //     source: "socket",
+    //   })
+    // );
   }
 
 }

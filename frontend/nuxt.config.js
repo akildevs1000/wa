@@ -68,12 +68,6 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     "~/plugins/qrcode.js",
-    "~/plugins/custom-methods.js",
-    { src: "~/plugins/crypto.js", mode: "client" },
-    { src: "~/plugins/axios.js" },
-    // { src: "~/plugins/TiptapVuetify", mode: "client" },
-    { src: "~/plugins/vue-apexchart.js", ssr: false },
-    { src: "~/plugins/vue-signature-pad.js", mode: "client" },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -195,6 +189,7 @@ export default {
 
   serverMiddleware: [
     { path: "/api/generate-page", handler: "~/server/api/generatePage.js" },
+    { path: "/server/clients", handler: "~/server/clients.js" }, // in clients.js file i want to push the cleint data  create clients.json 
   ],
 
   // env: {
