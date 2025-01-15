@@ -113,6 +113,16 @@ async function init(ws, clientId) {
     await whatsappClient.initialize();
 
   } catch (error) {
+    console.log("🚀 ~ init ~ error:", error)
+
+    ws.send(
+      JSON.stringify({
+        type: "clientId",
+        ready: true,
+        message: `Refresh or reload the page after 10 seconds`,
+        source: "socket",
+      })
+    );
 
     // Restart the PM2 process and reinitialize
 
