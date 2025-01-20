@@ -1,81 +1,62 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
-const path = require("path");
-const fs = require("fs");
-const readline = require("readline");
+const qrcode = require("qrcode-terminal");
 
-// Get the clientId passed as a command-line argument
-const clientId = process.argv[2];
-
-if (!clientId) {
-  console.error("Client ID is required");
+// Get clientId from command-line arguments
+const args = process.argv.slice(2);
+if (args.length < 1) {
+  console.error("clientId is required");
   process.exit(1);
 }
 
-console.log(`Initializing WhatsApp client for ${clientId}`);
+const clientId = args[0]; // First argument: client ID
 
-// Create a new WhatsApp client
-const whatsappClient = new Client({
-  authStrategy: new LocalAuth({ clientId }),
+// Hardcoded recipient number and message
+const recipientNumber = "1234567890"; // Replace with the recipient's phone number in international format
+const message = "Hello, this is a test message!"; // Replace with your desired message
+
+// Initialize the client with a unique clientId for session management
+const client = new Client({
+  authStrategy: new LocalAuth({
+    clientId: clientId, // Use the provided client ID
+  }),
   puppeteer: {
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      `--user-data-dir=/tmp/puppeteer_data_${clientId}`,
+    ],
     executablePath: "/snap/bin/chromium", // Replace with your Chromium path
     // executablePath:
     //   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Replace with your Chromium path
   },
 });
 
-// Add event listeners
-whatsappClient.on("qr", (qr) => {
-  if (process.send) {
-    process.send({ type: "qr", qr, clientId });
-  }
+// Display QR code for authentication
+client.on("qr", (qr) => {
+  console.log(`Scan this QR code for clientId "${clientId}":`);
+  qrcode.generate(qr, { small: true });
 });
 
-whatsappClient.on("ready", () => {
-  if (process.send) {
-    process.send({ type: "status", message: `Client ${clientId} is ready.` });
-  }
+// Confirm when the client is ready
+client.on("ready", () => {
+  console.log(`WhatsApp client "${clientId}" is ready!`);
+
+  // const recipient = `${recipientNumber}@c.us`; // Format for WhatsApp
+  // client
+  //   .sendMessage(recipient, message)
+  //   .then(() =>
+  //     console.log(
+  //       `Message sent successfully to ${recipientNumber}: "${message}"`
+  //     )
+  //   )
+  //   .catch((err) => console.error("Failed to send message:", err));
 });
 
-whatsappClient.on("auth_failure", (message) => {
-  if (process.send) {
-    process.send({
-      type: "status",
-      message: `Client ${clientId} authentication failed: ${message}`,
-    });
-  }
+// Handle authentication failure
+client.on("auth_failure", (msg) => {
+  console.error(`Authentication failed for clientId "${clientId}":`, msg);
 });
 
-whatsappClient.on("disconnected", (reason) => {
-  if (process.send) {
-    process.send({
-      type: "status",
-      message: `Client ${clientId} authentication failed: ${message}`,
-    });
-  }
-  process.exit(1); // Exit the process when disconnected
-});
-
-// Initialize WhatsApp client
-whatsappClient.initialize();
-
-// Handle incoming messages for this client
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-rl.on("line", (input) => {
-  // Handle incoming messages from the main server
-  const data = JSON.parse(input);
-  const { phone, message } = data;
-  whatsappClient
-    .sendMessage(phone, message)
-    .then(() => {
-      console.log(`Message sent to ${phone}: ${message}`);
-    })
-    .catch((err) => {
-      console.error(`Failed to send message: ${err.message}`);
-    });
-});
+// Start the client
+client.initialize();

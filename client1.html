@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Client with QR Code</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      #messages {
+        margin-top: 20px;
+      }
+      #qrcode {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="clientStatus"></div>
+    <div id="qrCodeContainer">
+      <img id="qrcode" />
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+      const qrCodeContainer = document.getElementById("qrCodeContainer");
+      const clientStatus = document.getElementById("clientStatus");
+      const qrcode = document.getElementById("qrcode");
+
+      const clientId = "client_1"; // You can dynamically change this
+      const wsUrl = `ws://159.65.223.236:5175?clientId=${clientId}`;
+      const ws = new WebSocket(wsUrl);
+
+      // When the connection is open, you can send messages or handle logic
+      ws.onopen = () => {
+        console.log(
+          `Connected to the WebSocket server with clientId: ${clientId}`
+        );
+      };
+
+      // Listen for messages from the server
+      ws.onmessage = (event) => {
+        let json = JSON.parse(event.data);
+
+        if (json.event == "status") {
+          clientStatus.textContent = json.data;
+        }
+
+        if (json.event == "ready") {
+          clientStatus.textContent = json.data;
+          qrCodeContainer.style.display = "none";
+        }
+
+        if (json.event == "qr") {
+          qrcode.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+            json.data
+          )}`;
+        }
+      };
+    </script>
+  </body>
+</html>
