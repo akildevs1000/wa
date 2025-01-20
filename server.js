@@ -18,15 +18,15 @@ const wss = new WebSocket.Server({ port: WS_PORT });
 // Function to run a script with a specific argument
 function runScript(clientId, ws) {
   if (processes[clientId]) {
-    // If a process is already running for this clientId, skip starting a new one
-    console.log(`Process already running for clientId: ${clientId}`);
-    return;
+    processes[clientId].child.kill();
+    delete processes[clientId];
   }
 
   const child = spawn("node", ["app.js", clientId]);
 
   processes[clientId] = { child, ws };
 
+  // Handle messages from the child process
   child.stdout.on("data", (data) => {
     try {
       const message = JSON.parse(data.toString().trim());
@@ -38,12 +38,14 @@ function runScript(clientId, ws) {
     }
   });
 
+  // Handle errors from the child process
   child.stderr.on("data", (data) => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(data));
     }
   });
 
+  // Handle child process exit
   child.on("close", (data) => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(data));
@@ -51,7 +53,6 @@ function runScript(clientId, ws) {
     delete processes[clientId];
   });
 }
-
 
 // Handle WebSocket connections
 wss.on("connection", (ws, req) => {
@@ -77,11 +78,11 @@ wss.on("connection", (ws, req) => {
   }
 
   ws.on("close", () => {
-    if (processes[clientId]) {
-      processes[clientId].child.kill();
-      delete processes[clientId];
-    }
-    console.log(`WebSocket client "${clientId}" disconnected.`);
+    //   if (processes[clientId]) {
+    //     processes[clientId].child.kill();
+    //     delete processes[clientId];
+    //   }
+    //   console.log(`WebSocket client "${clientId}" disconnected.`);
   });
 });
 
