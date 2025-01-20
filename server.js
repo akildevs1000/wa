@@ -3,6 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { spawn } = require("child_process");
 const url = require("url");
+const cors = require("cors"); // Import cors
+
 
 const app = express();
 const HTTP_PORT = 5176; // HTTP server port
@@ -10,6 +12,7 @@ const WS_PORT = 5175; // WebSocket server port
 
 const processes = {};
 
+app.use(cors());
 app.use(bodyParser.json());
 
 // Set up WebSocket server
