@@ -138,8 +138,10 @@ app.post("/whatsapp-destroy", (req, res) => {
     return res.status(400).send("clientId is required.");
   }
 
-  const child = processes[clientId];
-  if (!child) {
+  const processEntry = processes[clientId];
+
+
+  if (!processEntry) {
     return res.status(404).send("Client is not connected.");
   }
 
