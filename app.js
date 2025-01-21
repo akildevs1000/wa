@@ -39,9 +39,9 @@ client.on("qr", (qr) => {
   sendToParent({ event: "qr", data: qr });
 });
 
-// Confirm when the client is ready
+// Confirm when the Online
 client.on("ready", () => {
-  sendToParent({ event: "ready", data: `Client is ready!` });
+  sendToParent({ event: "ready", data: `Online` });
 });
 
 // Handle authentication failure
