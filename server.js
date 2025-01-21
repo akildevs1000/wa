@@ -122,8 +122,6 @@ app.post("/send-message", (req, res) => {
       }) + "\n"
     );
 
-    delete processes[clientId];
-
     res.status(200).json({
       success: true,
       data: `Message to ${recipient} is being processed.`,
