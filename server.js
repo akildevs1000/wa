@@ -131,6 +131,41 @@ app.post("/send-message", (req, res) => {
   }
 });
 
+app.post("/whatsapp-destroy", (req, res) => {
+  const { clientId } = req.body;
+
+  if (!clientId) {
+    return res.status(400).send("clientId is required.");
+  }
+
+  const child = processes[clientId];
+  if (!child) {
+    return res.status(404).send("Client is not connected.");
+  }
+
+  try {
+    processEntry.child.stdin.write(
+      JSON.stringify({
+        event: "destroy",
+      }) + "\n"
+    );
+
+    res.status(200).json({
+      success: true,
+      data: `Whatsapp has been disconnected`,
+    });
+  } catch (err) {
+    console.error("Error sending message via API:", err);
+    res.status(500).json({
+      success: false,
+      data: "Failed to disconnect.",
+      error: err.message,
+    });
+  }
+
+
+});
+
 // Start the HTTP server
 app.listen(HTTP_PORT, () => {
   console.log(`HTTP server is running on http://localhost:${HTTP_PORT}`);

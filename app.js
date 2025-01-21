@@ -85,16 +85,31 @@ process.stdin.on("data", (data) => {
             data: `Unknown action: ${err.message}`,
           });
         });
+    } else if (message.event === "destroy") {
+      client
+        .destroy()
+        .then(() => sendToParent({
+          event: "destroy",
+          data: "WhatsApp session destroyed."
+        }))
+        .catch((err) => {
+          sendToParent(
+            {
+              event: "destroy",
+              data: `Failed to destroy client: ${err.message}`
+            })
+        });
+
     } else {
       sendToParent({
-        event: "sendMessage",
+        event: "unknown",
         data: `Unknown action: ${message.action}`,
       });
     }
   } catch (err) {
     sendToParent({
-      event: "sendMessage",
-      data: "Invalid message format. Expected JSON.",
+      event: "unknown",
+      data: "Unknown Error",
     });
   }
 });
