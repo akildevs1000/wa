@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const { spawn } = require("child_process");
 const url = require("url");
 const cors = require("cors"); // Import cors
-
+const rimraf = require("rimraf"); // Import rimraf package
 
 const fs = require("fs");
 const path = require("path");
@@ -163,20 +163,12 @@ app.post("/whatsapp-destroy", (req, res) => {
 
     console.log(`Attempting to delete session folder at: ${sessionFolderPath}`);
 
-    // Check if the folder exists
-    if (fs.existsSync(sessionFolderPath)) {
-      try {
-        // Use fs.rmSync() for deleting a non-empty directory
-        fs.rmSync(sessionFolderPath, { recursive: true, force: true });
-        console.log(`Session folder deleted for client ${clientId}.`);
-      } catch (err) {
-        console.error("Error deleting session folder:", err);
-      }
-    } else {
-      console.log(`Session folder for client ${clientId} not found.`);
-    }
+    // Use rimraf to delete the session folder
+    rimraf.sync(sessionFolderPath);
 
+    console.log(`Session folder deleted for client ${clientId}.`);
 
+    // Optional: Send WebSocket message to the client
     ws.send(
       JSON.stringify({
         event: "status",
