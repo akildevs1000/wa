@@ -12,14 +12,17 @@ const clientId = args[0]; // First argument: client ID
 
 const sessionFolderPath = path.join(__dirname, `.wwebjs_auth/session-${clientId}`);
 
-try {
-    // Use fs.rmSync() for deleting a non-empty directory
-    if (fs.existsSync(sessionFolderPath)) {
+console.log(`Attempting to delete session folder at: ${sessionFolderPath}`);
+
+// Check if the folder exists
+if (fs.existsSync(sessionFolderPath)) {
+    try {
+        // Use fs.rmSync() for deleting a non-empty directory
         fs.rmSync(sessionFolderPath, { recursive: true, force: true });
         console.log(`Session folder deleted for client ${clientId}.`);
-    } else {
-        console.log(`Session folder for client ${clientId} not found.`);
+    } catch (err) {
+        console.error("Error deleting session folder:", err);
     }
-} catch (err) {
-    console.error("Error deleting session folder:", err);
+} else {
+    console.log(`Session folder for client ${clientId} not found.`);
 }
