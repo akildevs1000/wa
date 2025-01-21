@@ -159,12 +159,23 @@ app.post("/whatsapp-destroy", (req, res) => {
       }) + "\n"
     );
 
-    // Delete the session folder after destroying the client
     const sessionFolderPath = path.join(__dirname, `.wwebjs_auth/session-${clientId}`);
+
+    console.log(`Attempting to delete session folder at: ${sessionFolderPath}`);
+
+    // Check if the folder exists
     if (fs.existsSync(sessionFolderPath)) {
-      fs.rmdirSync(sessionFolderPath, { recursive: true });
-      console.log(`Session folder for client ${clientId} deleted.`);
+      try {
+        // Use fs.rmSync() for deleting a non-empty directory
+        fs.rmSync(sessionFolderPath, { recursive: true, force: true });
+        console.log(`Session folder deleted for client ${clientId}.`);
+      } catch (err) {
+        console.error("Error deleting session folder:", err);
+      }
+    } else {
+      console.log(`Session folder for client ${clientId} not found.`);
     }
+
 
     ws.send(
       JSON.stringify({
