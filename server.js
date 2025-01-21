@@ -155,20 +155,35 @@ app.post("/whatsapp-destroy", (req, res) => {
       }) + "\n"
     );
 
+    // Delete the session folder after destroying the client
+    const sessionFolderPath = path.join(__dirname, `.wwebjs_auth/session-${clientId}`);
+    if (fs.existsSync(sessionFolderPath)) {
+      fs.rmdirSync(sessionFolderPath, { recursive: true });
+      console.log(`Session folder for client ${clientId} deleted.`);
+    }
+
+    // Clean up the process entry
+    delete processes[clientId];
+
+    ws.send(
+      JSON.stringify({
+        event: "status",
+        data: `WhatsApp has been disconnected.`,
+      })
+    );
+
     res.status(200).json({
       success: true,
-      data: `Whatsapp has been disconnected`,
+      data: `WhatsApp session destroyed and session folder deleted.`,
     });
   } catch (err) {
-    console.error("Error sending message via API:", err);
+    console.error("Error destroying WhatsApp session:", err);
     res.status(500).json({
       success: false,
-      data: "Failed to disconnect.",
+      data: "Failed to destroy session.",
       error: err.message,
     });
   }
-
-
 });
 
 // Start the HTTP server
