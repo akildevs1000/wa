@@ -163,6 +163,8 @@ app.post("/whatsapp-destroy", (req, res) => {
 
     console.log(`Attempting to delete session folder at: ${sessionFolderPath}`);
 
+    delete processes[clientId];
+
     // Use rimraf to delete the session folder
     rimraf.sync(sessionFolderPath);
 
