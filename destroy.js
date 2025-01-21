@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 // Get clientId from command-line arguments
 const args = process.argv.slice(2);
 if (args.length < 1) {
