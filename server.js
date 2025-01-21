@@ -162,9 +162,6 @@ app.post("/whatsapp-destroy", (req, res) => {
       console.log(`Session folder for client ${clientId} deleted.`);
     }
 
-    // Clean up the process entry
-    delete processes[clientId];
-
     ws.send(
       JSON.stringify({
         event: "status",
