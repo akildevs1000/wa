@@ -28,10 +28,16 @@ const client = new Client({
 });
 
 // Ensure cleanup on process exit or interruption
-process.on("exit", () => client.destroy());
+process.on("exit", () => {
+  client.destroy();
+  sendToParent({ event: "SIGINT", data: `Process exited` });
+});
 
 process.on("SIGINT", () => {
-  client.destroy().then(() => process.exit(0));
+  client.destroy().then(() => {
+    sendToParent({ event: "SIGINT", data: `Process exited` });
+    process.exit(0);
+  });
 });
 
 // Display QR code for authentication
@@ -62,10 +68,10 @@ process.stdin.on("data", (data) => {
       const { recipient, text } = message;
 
       if (!recipient || !text) {
-        sendToParent(
-          "error",
-          "Recipient and text are required to send a message."
-        );
+        sendToParent({
+          event: "error",
+          data: "Recipient and text are required to send a message.",
+        });
         return;
       }
 
@@ -85,21 +91,6 @@ process.stdin.on("data", (data) => {
             data: `Unknown action: ${err.message}`,
           });
         });
-    } else if (message.event === "destroy") {
-      client
-        .destroy()
-        .then(() => sendToParent({
-          event: "destroy",
-          data: "WhatsApp session destroyed."
-        }))
-        .catch((err) => {
-          sendToParent(
-            {
-              event: "destroy",
-              data: `Failed to destroy client: ${err.message}`
-            })
-        });
-
     } else {
       sendToParent({
         event: "unknown",
