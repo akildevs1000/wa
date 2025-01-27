@@ -91,11 +91,6 @@ process.stdin.on("data", (data) => {
             data: `Unknown action: ${err.message}`,
           });
         });
-    } else {
-      sendToParent({
-        event: "unknown",
-        data: `Unknown action: ${message.action}`,
-      });
     }
   } catch (err) {
     sendToParent({
