@@ -84,6 +84,12 @@ wss.on("connection", (ws, req) => {
     );
   }
 
+  const heartbeatInterval = setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ event: "heartbeat", data: "ping" }));
+    }
+  }, 30000); // Ping every 30 seconds
+
   ws.on("close", () => {
     //   if (processes[clientId]) {
     //     processes[clientId].child.kill();
@@ -131,60 +137,6 @@ app.post("/send-message", (req, res) => {
     res.status(500).json({
       success: false,
       data: "Failed to send message.",
-      error: err.message,
-    });
-  }
-});
-
-app.post("/whatsapp-destroy", (req, res) => {
-  const { clientId } = req.body;
-
-  if (!clientId) {
-    return res.status(400).send("clientId is required.");
-  }
-
-  const processEntry = processes[clientId];
-
-
-  if (!processEntry) {
-    return res.status(404).send("Client is not connected.");
-  }
-
-  try {
-    processEntry.child.stdin.write(
-      JSON.stringify({
-        event: "destroy",
-      }) + "\n"
-    );
-
-    const sessionFolderPath = path.join(__dirname, `.wwebjs_auth/session-${clientId}`);
-
-    console.log(`Attempting to delete session folder at: ${sessionFolderPath}`);
-
-    delete processes[clientId];
-
-    // Use rimraf to delete the session folder
-    rimraf.sync(sessionFolderPath);
-
-    console.log(`Session folder deleted for client ${clientId}.`);
-
-    // Optional: Send WebSocket message to the client
-    ws.send(
-      JSON.stringify({
-        event: "status",
-        data: `WhatsApp has been disconnected.`,
-      })
-    );
-
-    res.status(200).json({
-      success: true,
-      data: `WhatsApp session destroyed and session folder deleted.`,
-    });
-  } catch (err) {
-    console.error("Error destroying WhatsApp session:", err);
-    res.status(500).json({
-      success: false,
-      data: "Failed to destroy session.",
       error: err.message,
     });
   }
