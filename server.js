@@ -164,7 +164,7 @@ app.post("/whatsapp-destroy", (req, res) => {
   try {
 
     ws.send(JSON.stringify({
-      event: "ready",
+      event: "status",
       data: `You can only delete whatsapp from your phone.`,
     }));
 
