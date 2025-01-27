@@ -92,6 +92,14 @@ process.stdin.on("data", (data) => {
           });
         });
     }
+
+    if (message.event === "destroy") {
+      sendToParent({
+        event: "status",
+        data: "You can only delete whatsapp from your phone.",
+      });
+
+    }
   } catch (err) {
     sendToParent({
       event: "unknown",
