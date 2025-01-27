@@ -142,6 +142,47 @@ app.post("/send-message", (req, res) => {
   }
 });
 
+app.post("/whatsapp-destroy", (req, res) => {
+  const { clientId } = req.body;
+
+  if (!clientId) {
+    return res.status(400).json({
+      success: false,
+      data: "Missing required fields: clientId",
+    });
+  }
+
+  const processEntry = processes[clientId];
+
+  if (!processEntry) {
+    return res.status(404).json({
+      success: false,
+      data: `WhatsApp client not found or not connected.`,
+    });
+  }
+
+  try {
+
+    ws.send(JSON.stringify({
+      event: "status",
+      data: `You can only delete whatsapp from your phone.`,
+    }));
+
+
+    res.status(200).json({
+      success: true,
+      data: `You can only delete whatsapp from your phone.`,
+    });
+  } catch (err) {
+    console.error("Error sending message via API:", err);
+    res.status(500).json({
+      success: false,
+      data: "Failed to send message.",
+      error: err.message,
+    });
+  }
+});
+
 // Start the HTTP server
 app.listen(HTTP_PORT, () => {
   console.log(`HTTP server is running on http://localhost:${HTTP_PORT}`);
