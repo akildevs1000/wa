@@ -24,10 +24,10 @@ const wss = new WebSocket.Server({ port: WS_PORT });
 
 // Function to run a script with a specific argument
 function runScript(clientId, ws) {
-  // if (processes[clientId]) {
-  //   processes[clientId].child.kill();
-  //   delete processes[clientId];
-  // }
+  if (processes[clientId]) {
+    processes[clientId].child.kill();
+    delete processes[clientId];
+  }
   const child = spawn("node", ["app.js", clientId]);
 
   processes[clientId] = { child, ws };
