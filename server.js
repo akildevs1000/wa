@@ -28,6 +28,7 @@ function runScript(clientId, ws) {
     processes[clientId].child.kill();
     delete processes[clientId];
   }
+
   const child = spawn("node", ["app.js", clientId]);
 
   processes[clientId] = { child, ws };
@@ -82,12 +83,6 @@ wss.on("connection", (ws, req) => {
       })
     );
   }
-
-  ws.on('close', () => {
-    console.log(`[${getCurrentDateTime()}] WebSocket connection closed for clientId: ${clientId}`);
-    console.log(`[${getCurrentDateTime()}] Reconnecting to WebSocket server for clientId: ${clientId}`);
-    connectWebSocketForClients([clientId]); // Reconnect for the specific client
-  });
 
   ws.on("close", () => {
     //   if (processes[clientId]) {
