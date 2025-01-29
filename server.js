@@ -4,11 +4,8 @@ const bodyParser = require("body-parser");
 const { spawn } = require("child_process");
 const url = require("url");
 const cors = require("cors"); // Import cors
-const rimraf = require("rimraf"); // Import rimraf package
 
-const fs = require("fs");
-const path = require("path");
-
+const { addClient } = require('./add_clients_script');
 
 const app = express();
 const HTTP_PORT = 5176; // HTTP server port
@@ -32,6 +29,9 @@ function runScript(clientId, ws) {
   const child = spawn("node", ["app.js", clientId]);
 
   processes[clientId] = { child, ws };
+
+  // adding clients in json file (clients.json)
+  addClient(clientId);
 
   // Handle messages from the child process
   child.stdout.on("data", (data) => {

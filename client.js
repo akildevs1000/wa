@@ -53,13 +53,13 @@ const connectWebSocket = () => {
     const json = JSON.parse(data);
 
     if (json.event === 'status') {
-      const message = `[${getTimestamp()}] Status: ${json.data}`;
+      const message = `[${getTimestamp()}] Status: ${json.data}, Counter: ${++counter}`;
       console.log(message);
       logToCSV(getTimestamp(), 'status', json.data);
     }
 
     if (json.event === 'ready') {
-      const message = `[${getTimestamp()}] Ready: ${json.data}, Counter: ${++counter}`;
+      const message = `[${getTimestamp()}] ${json.data}`;
       console.log(message);
       logToCSV(getTimestamp(), 'ready', json.data);
     }
