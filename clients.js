@@ -21,7 +21,10 @@ try {
 
 // Helper function to get the current timestamp
 const getTimestamp = () => {
-    return new Date().toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
+    const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Dubai" });
+    const date = new Date(now);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ` +
+        `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
 };
 
 // Function to log events to the CSV file
