@@ -129,10 +129,15 @@ app.post("/send-message", (req, res) => {
       }) + "\n"
     );
 
-    res.status(200).json({
-      success: true,
-      data: `Message to ${recipient} is being processed.`,
+    processEntry.child.stdout.on('data', (data) => {
+      res.status(200).json({
+        success: true,
+        data: `Message to ${recipient} is being processed.`,
+        response: JSON.parse(data.toString().trim())
+      });
     });
+
+
   } catch (err) {
     console.error("Error sending message via API:", err);
     res.status(500).json({

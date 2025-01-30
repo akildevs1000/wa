@@ -82,7 +82,7 @@ process.stdin.on("data", (data) => {
         .then(() => {
           sendToParent({
             event: "sendMessage",
-            data: `Message sent`,
+            data: `Message sent to ${recipient}.`,
           });
         })
         .catch((err) => {
