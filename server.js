@@ -139,8 +139,7 @@ app.post("/send-message", (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: `Message to ${recipient} is being processed.`,
-      response: JSON.parse(data.toString().trim())
+      data: `Message to ${recipient} is being processed.`
     });
 
 
