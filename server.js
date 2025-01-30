@@ -129,54 +129,21 @@ app.post("/send-message", (req, res) => {
       }) + "\n"
     );
 
-    processEntry.child.stdout.on('data', (data) => {
-      res.status(200).json({
-        success: true,
-        data: `Message to ${recipient} is being processed.`,
-        response: JSON.parse(data.toString().trim())
-      });
-    });
-
-
-  } catch (err) {
-    console.error("Error sending message via API:", err);
-    res.status(500).json({
-      success: false,
-      data: "Failed to send message.",
-      error: err.message,
-    });
-  }
-});
-
-app.post("/whatsapp-destroy", (req, res) => {
-  const { clientId } = req.body;
-
-  if (!clientId) {
-    return res.status(400).json({
-      success: false,
-      data: "Missing required fields: clientId",
-    });
-  }
-
-  const processEntry = processes[clientId];
-
-  if (!processEntry) {
-    return res.status(404).json({
-      success: false,
-      data: `WhatsApp client not found or not connected.`,
-    });
-  }
-
-  try {
-
-    processEntry.child.stdin.write(
-      JSON.stringify({ event: "destroy", }) + "\n"
-    );
+    // processEntry.child.stdout.on('data', (data) => {
+    //   res.status(200).json({
+    //     success: true,
+    //     data: `Message to ${recipient} is being processed.`,
+    //     response: JSON.parse(data.toString().trim())
+    //   });
+    // });
 
     res.status(200).json({
       success: true,
-      data: `You can only delete whatsapp from your phone.`,
+      data: `Message to ${recipient} is being processed.`,
+      response: JSON.parse(data.toString().trim())
     });
+
+
   } catch (err) {
     console.error("Error sending message via API:", err);
     res.status(500).json({
