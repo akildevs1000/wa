@@ -91,11 +91,12 @@ wss.on("connection", (ws, req) => {
   }, 30000); // Ping every 30 seconds
 
   ws.on("close", () => {
-    //   if (processes[clientId]) {
-    //     processes[clientId].child.kill();
-    //     delete processes[clientId];
-    //   }
-    //   console.log(`WebSocket client "${clientId}" disconnected.`);
+    ws.send(
+      JSON.stringify({
+        event: "status",
+        data: `Connection lost`,
+      })
+    );
   });
 });
 
