@@ -2,8 +2,6 @@ const pm2 = require("pm2");
 const fs = require("fs");
 const path = require("path");
 
-// Read the clients.json file
-const clients = JSON.parse(fs.readFileSync("clients.json", "utf8")).clients;
 const sessionBasePath = path.join(__dirname, ".wwebjs_auth");
 const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000; // 24 hours ago
 
