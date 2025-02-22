@@ -86,7 +86,7 @@ wss.on("connection", (ws, req) => {
 
   setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ event: "heartbeat", data: "Online" }));
+      ws.send(JSON.stringify({ event: "heartbeat", data: "Alive" }));
     }
   }, 30000); // Ping every 30 seconds
 
