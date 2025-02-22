@@ -30,13 +30,14 @@ pm2.connect((err) => {
                         if (clientId == "test") {
                             let payload = {
                                 script: "client.js",
-                                name: `child-process-${clientId}`, // Unique name for each process
-                                autorestart: true, // Auto-restart if it crashes
-                                watch: false, // Change to true if you want to restart on file changes
-                                cron_restart: "0 */2 * * *", // Restart every 2 hours
-                                args: [clientId], // Pass client ID to child.js
+                                name: `child-process-${clientId}`,
+                                autorestart: true,
+                                max_restarts: 5,  // Limit the number of restarts
+                                watch: false,
+                                cron_restart: "0 */2 * * *",
+                                args: [clientId],
                             };
-                            
+
                             console.log(payload);
 
                             pm2.start(payload, (err, apps) => {
@@ -48,10 +49,7 @@ pm2.connect((err) => {
                                 console.log(`Child process started for ${clientId}`);
                             }
                             );
-
                         }
-
-
                     }
 
                 }
