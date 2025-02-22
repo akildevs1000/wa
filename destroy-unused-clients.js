@@ -40,16 +40,17 @@ if (fs.existsSync(sessionBasePath)) {
         const folderPath = path.join(sessionBasePath, folder);
 
         try {
-            const stats = fs.statSync(folderPath);
-            const lastModified = stats.mtime.getTime();
-            const lastModifiedDate = new Date(stats.mtime).toLocaleString(); // Format timestamp
-            const folderSizeMB = (getFolderSize(folderPath) / (1024 * 1024)).toFixed(2); // Convert to MB
-
-            console.log(`Session: ${folder} | Last Modified: ${lastModifiedDate} | Size: ${folderSizeMB} MB`);
-
             if (lastModified < oneDayAgo) {
+                
+                const stats = fs.statSync(folderPath);
+                const lastModified = stats.mtime.getTime();
+                const lastModifiedDate = new Date(stats.mtime).toLocaleString(); // Format timestamp
+                const folderSizeMB = (getFolderSize(folderPath) / (1024 * 1024)).toFixed(2); // Convert to MB
+    
+                console.log(`Session: ${folder} | Last Modified: ${lastModifiedDate} | Size: ${folderSizeMB} MB`);
+
                 // fs.rmSync(folderPath, { recursive: true, force: true });
-                console.log(`🗑️ Deleted: ${folder}`);
+                // console.log(`🗑️ Deleted: ${folder}`);
             } else {
                 // console.log(`✅ Kept: ${folder}`);
             }
