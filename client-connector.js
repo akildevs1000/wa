@@ -11,55 +11,79 @@ pm2.connect((err) => {
         process.exit(1);
     }
 
-    // Ensure the session directory exists
-    if (fs.existsSync(sessionBasePath)) {
-        const sessionFolders = fs.readdirSync(sessionBasePath).filter(folder => folder.startsWith("session-"));
+    let clientId = "test"; // Replace with your desired clientId
 
-        sessionFolders.forEach(folder => {
-            const folderPath = path.join(sessionBasePath, folder);
 
-            try {
-                const stats = fs.statSync(folderPath);
-                const lastModified = stats.mtime.getTime();
+    let payload = {
+        script: "client.js",
+        name: `child-process-${clientId}`,
+        autorestart: true,
+        max_restarts: 5,
+        watch: false,
+        args: [clientId],
+    };
 
-                if (lastModified > oneDayAgo) {
-                    if (folder.split("session-")[1]) {
-                        let clientId = folder.split("session-")[1];
+    console.log(payload);
 
-                        if (clientId == "test") {
-                            let payload = {
-                                script: "client.js",
-                                name: `child-process-${clientId}`,
-                                autorestart: true,
-                                max_restarts: 5,
-                                watch: false,
-                                args: [clientId],
-                            };
+    pm2.start(payload, (err, apps) => {
+        if (err) {
+            console.error(`Error starting process for ${clientId}:`, err);
+            return;
+        }
 
-                            console.log(payload);
-
-                            pm2.start(payload, (err, apps) => {
-                                if (err) {
-                                    console.error(`Error starting process for ${clientId}:`, err);
-                                    return;
-                                }
-
-                                console.log(`Child process started for ${clientId}`);
-                            }
-                            );
-                        }
-                    }
-
-                }
-            } catch (err) {
-                if (err.code !== "ENOENT") {
-                    console.log(`❌ Error processing folder ${folder}: ${err.message}`);
-                }
-            }
-        });
-    } else {
-        console.log("Session directory does not exist.");
+        console.log(`Child process started for ${clientId}`);
     }
+    );
+
+    // Ensure the session directory exists
+    // if (fs.existsSync(sessionBasePath)) {
+    //     const sessionFolders = fs.readdirSync(sessionBasePath).filter(folder => folder.startsWith("session-"));
+
+    //     sessionFolders.forEach(folder => {
+    //         const folderPath = path.join(sessionBasePath, folder);
+
+    //         try {
+    //             const stats = fs.statSync(folderPath);
+    //             const lastModified = stats.mtime.getTime();
+
+    //             if (lastModified > oneDayAgo) {
+    //                 if (folder.split("session-")[1]) {
+    //                     let clientId = folder.split("session-")[1];
+
+    //                     if (clientId == "test") {
+    //                         let payload = {
+    //                             script: "client.js",
+    //                             name: `child-process-${clientId}`,
+    //                             autorestart: true,
+    //                             max_restarts: 5,
+    //                             watch: false,
+    //                             args: [clientId],
+    //                         };
+
+    //                         console.log(payload);
+
+    //                         pm2.start(payload, (err, apps) => {
+    //                             if (err) {
+    //                                 console.error(`Error starting process for ${clientId}:`, err);
+    //                                 return;
+    //                             }
+
+    //                             console.log(`Child process started for ${clientId}`);
+    //                         }
+    //                         );
+    //                     }
+    //                 }
+
+    //             }
+    //         } catch (err) {
+    //             if (err.code !== "ENOENT") {
+    //                 console.log(`❌ Error processing folder ${folder}: ${err.message}`);
+    //             }
+    //         }
+    //     });
+    // } else {
+    //     console.log("Session directory does not exist.");
+    // }
 
 
 
