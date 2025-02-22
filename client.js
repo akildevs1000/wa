@@ -64,6 +64,13 @@ const connectWebSocket = () => {
       logToCSV(getTimestamp(), 'ready', json.data);
     }
 
+
+    if (json.event === 'heartbeat') {
+      const message = `[${getTimestamp()}] ${json.data}`;
+      console.log(message);
+      logToCSV(getTimestamp(), 'heartbeat', json.data);
+    }
+
     if (json.event === 'qr') {
       const qrCodeData = json.data;
 
