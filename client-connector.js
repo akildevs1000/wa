@@ -11,30 +11,6 @@ pm2.connect((err) => {
         process.exit(1);
     }
 
-    let clientId = "test"; // Replace with your desired clientId
-
-    let payload = {
-        script: "client.js",
-        name: `child-process-${clientId}`,
-        autorestart: true,
-        max_restarts: 5,  // Limit the number of restarts
-        watch: false,
-        cron_restart: "0 */2 * * *",
-        args: [clientId],
-    };
-
-    pm2.start(payload, (err, apps) => {
-        if (err) {
-            console.error(`Error starting process for ${clientId}:`, err);
-            return;
-        }
-
-        console.log(`Child process started for ${clientId}`);
-    })
-
-    return;
-
-
     // Ensure the session directory exists
     if (fs.existsSync(sessionBasePath)) {
         const sessionFolders = fs.readdirSync(sessionBasePath).filter(folder => folder.startsWith("session-"));
@@ -63,15 +39,15 @@ pm2.connect((err) => {
 
                             console.log(payload);
 
-                            pm2.start(payload, (err, apps) => {
-                                if (err) {
-                                    console.error(`Error starting process for ${clientId}:`, err);
-                                    return;
-                                }
+                            // pm2.start(payload, (err, apps) => {
+                            //     if (err) {
+                            //         console.error(`Error starting process for ${clientId}:`, err);
+                            //         return;
+                            //     }
 
-                                console.log(`Child process started for ${clientId}`);
-                            }
-                            );
+                            //     console.log(`Child process started for ${clientId}`);
+                            // }
+                            // );
                         }
                     }
 
