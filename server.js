@@ -37,6 +37,15 @@ function runScript(clientId, ws) {
   child.stdout.on("data", (data) => {
     try {
       const message = JSON.parse(data.toString().trim());
+
+      if (message.event === "ready") {
+        setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ event: "ready", data: "Online" }));
+          }
+        }, 30000); // Ping every 30 seconds
+      }
+
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(message));
       }
@@ -83,12 +92,6 @@ wss.on("connection", (ws, req) => {
       })
     );
   }
-
-  setInterval(() => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ event: "heartbeat", data: "Alive" }));
-    }
-  }, 30000); // Ping every 30 seconds
 
   ws.on("close", () => {
     ws.send(
