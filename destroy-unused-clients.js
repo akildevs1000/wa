@@ -38,12 +38,12 @@ if (fs.existsSync(sessionBasePath)) {
 
     sessionFolders.forEach(folder => {
         const folderPath = path.join(sessionBasePath, folder);
-
+        const lastModified = stats.mtime.getTime();
         try {
             if (lastModified < oneDayAgo) {
                 
                 const stats = fs.statSync(folderPath);
-                const lastModified = stats.mtime.getTime();
+               
                 const lastModifiedDate = new Date(stats.mtime).toLocaleString(); // Format timestamp
                 const folderSizeMB = (getFolderSize(folderPath) / (1024 * 1024)).toFixed(2); // Convert to MB
     
