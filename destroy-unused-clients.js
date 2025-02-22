@@ -2,27 +2,50 @@ const fs = require("fs");
 const path = require("path");
 
 const sessionBasePath = path.join(__dirname, ".wwebjs_auth");
+const logFilePath = path.join(__dirname, "logs/destroy-unused-clients.log");
 const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000; // 24 hours ago
 
 console.log("Checking for old session folders...");
+logMessage("Checking for old session folders...\n");
 
-// Function to calculate the total size of a directory
+// Function to log messages to a file
+function logMessage(message) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    fs.appendFileSync(logFilePath, logEntry);
+    console.log(message);
+}
+
+// Function to calculate the total size of a directory safely
 function getFolderSize(folderPath) {
     let totalSize = 0;
 
     function calculateSize(directory) {
-        const files = fs.readdirSync(directory);
+        try {
+            const files = fs.readdirSync(directory);
 
-        files.forEach(file => {
-            const filePath = path.join(directory, file);
-            const stats = fs.statSync(filePath);
+            files.forEach(file => {
+                const filePath = path.join(directory, file);
 
-            if (stats.isDirectory()) {
-                calculateSize(filePath);
-            } else {
-                totalSize += stats.size;
+                try {
+                    const stats = fs.statSync(filePath);
+
+                    if (stats.isDirectory()) {
+                        calculateSize(filePath);
+                    } else {
+                        totalSize += stats.size;
+                    }
+                } catch (err) {
+                    if (err.code !== "ENOENT") {
+                        logMessage(`⚠️ Error accessing file: ${filePath} - ${err.message}`);
+                    }
+                }
+            });
+        } catch (err) {
+            if (err.code !== "ENOENT") {
+                logMessage(`⚠️ Error reading directory: ${directory} - ${err.message}`);
             }
-        });
+        }
     }
 
     if (fs.existsSync(folderPath)) {
@@ -38,25 +61,28 @@ if (fs.existsSync(sessionBasePath)) {
 
     sessionFolders.forEach(folder => {
         const folderPath = path.join(sessionBasePath, folder);
-        const stats = fs.statSync(folderPath);
-        const lastModified = stats.mtime.getTime();
-        try {
-            if (lastModified < oneDayAgo) {
-               
-                const lastModifiedDate = new Date(stats.mtime).toLocaleString(); // Format timestamp
-                const folderSizeMB = (getFolderSize(folderPath) / (1024 * 1024)).toFixed(2); // Convert to MB
-    
-                console.log(`Session: ${folder} | Last Modified: ${lastModifiedDate} | Size: ${folderSizeMB} MB`);
 
-                // fs.rmSync(folderPath, { recursive: true, force: true });
-                // console.log(`🗑️ Deleted: ${folder}`);
+        try {
+            const stats = fs.statSync(folderPath);
+            const lastModified = stats.mtime.getTime();
+            const lastModifiedDate = new Date(stats.mtime).toLocaleString(); // Format timestamp
+            const folderSizeMB = (getFolderSize(folderPath) / (1024 * 1024)).toFixed(2); // Convert to MB
+
+            const logEntry = `📂 Session: ${folder} | 🕒 Last Modified: ${lastModifiedDate} | 📦 Size: ${folderSizeMB} MB`;
+            logMessage(logEntry);
+
+            if (lastModified < oneDayAgo) {
+                fs.rmSync(folderPath, { recursive: true, force: true });
+                logMessage(`🗑️ Deleted: ${folder}`);
             } else {
-                // console.log(`✅ Kept: ${folder}`);
+                logMessage(`✅ Kept: ${folder}`);
             }
         } catch (err) {
-            console.error(`❌ Error processing folder ${folder}:`, err);
+            if (err.code !== "ENOENT") {
+                logMessage(`❌ Error processing folder ${folder}: ${err.message}`);
+            }
         }
     });
 } else {
-    console.log("Session directory does not exist.");
+    logMessage("Session directory does not exist.");
 }
