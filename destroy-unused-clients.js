@@ -6,7 +6,7 @@ const logFilePath = path.join(__dirname, "logs/destroy-unused-clients.log");
 const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000; // 24 hours ago
 
 console.log("Checking for old session folders...");
-logMessage("Checking for old session folders...\n");
+logMessage("Checking for old session folders...");
 
 // Function to log messages to a file
 function logMessage(message) {
@@ -83,7 +83,6 @@ if (fs.existsSync(sessionBasePath)) {
             }
         }
     });
-    console.log("n");
 } else {
-    logMessage("Session directory does not exist\n.");
+    logMessage("Session directory does not exist.");
 }
