@@ -22,7 +22,7 @@ if (fs.existsSync(sessionBasePath)) {
                 // console.log(`Deleted old session folder: ${folder}`);
                 console.log(`Unused folder: ${folder}`);
             } else {
-                console.log(`Keeping session folder: ${folder}`);
+                // console.log(`Keeping session folder: ${folder}`);
             }
         } catch (err) {
             console.error(`Error processing folder ${folder}:`, err);
