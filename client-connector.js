@@ -31,23 +31,22 @@ pm2.connect((err) => {
                                 script: "client.js",
                                 name: `child-process-${clientId}`,
                                 autorestart: true,
-                                max_restarts: 5,  // Limit the number of restarts
+                                max_restarts: 5,
                                 watch: false,
-                                cron_restart: "0 */2 * * *",
                                 args: [clientId],
                             };
 
                             console.log(payload);
 
-                            // pm2.start(payload, (err, apps) => {
-                            //     if (err) {
-                            //         console.error(`Error starting process for ${clientId}:`, err);
-                            //         return;
-                            //     }
+                            pm2.start(payload, (err, apps) => {
+                                if (err) {
+                                    console.error(`Error starting process for ${clientId}:`, err);
+                                    return;
+                                }
 
-                            //     console.log(`Child process started for ${clientId}`);
-                            // }
-                            // );
+                                console.log(`Child process started for ${clientId}`);
+                            }
+                            );
                         }
                     }
 
