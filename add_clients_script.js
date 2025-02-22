@@ -27,4 +27,15 @@ function addClient(clientId) {
     }
 }
 
-module.exports = { addClient };
+function deleteClient(clientId) {
+    const index = existingClients.clientIds.indexOf(clientId);
+    if (index !== -1) {
+        existingClients.clientIds.splice(index, 1);
+        saveClients(existingClients);
+        console.log(`Client ${clientId} deleted successfully.`);
+    } else {
+        console.log(`Client ${clientId} not found.`);
+    }
+}
+
+module.exports = { addClient, deleteClient, loadClients };

@@ -5,7 +5,7 @@ const { spawn } = require("child_process");
 const url = require("url");
 const cors = require("cors"); // Import cors
 
-const { addClient } = require('./add_clients_script');
+const { addClient, deleteClient } = require('./add_clients_script');
 
 const app = express();
 const HTTP_PORT = 5176; // HTTP server port
@@ -30,24 +30,27 @@ function runScript(clientId, ws) {
 
   processes[clientId] = { child, ws };
 
-  // adding clients in json file (clients.json)
-  addClient(clientId);
-
   // Handle messages from the child process
   child.stdout.on("data", (data) => {
     try {
       const message = JSON.parse(data.toString().trim());
 
-      if (message.event === "ready") {
+      if (message.event === "auth_failure" || message.event === "disconnected") {
+        console.log("🚀 ~ child.stdout.on ~ message:", message.event)
+        ws.send(JSON.stringify({ event: "disconnected", data: "Disconnected" }));
+        deleteClient(clientId);
+      }
+      else if (message.event === "ready") {
+        addClient(clientId);
         setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ event: "ready", data: "Online" }));
           }
         }, 30000); // Ping every 30 seconds
-      }
-
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(message));
+      } else {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify(message));
+        }
       }
     } catch (err) {
       console.error("Error parsing child process data:", err);
