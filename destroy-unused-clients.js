@@ -83,6 +83,8 @@ if (fs.existsSync(sessionBasePath)) {
             }
         }
     });
+    logMessage("\n");
+
 } else {
-    logMessage("Session directory does not exist.");
+    logMessage("Session directory does not exist\n.");
 }
