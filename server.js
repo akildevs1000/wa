@@ -41,7 +41,6 @@ function runScript(clientId, ws) {
         deleteClient(clientId);
       }
       else if (message.event === "ready") {
-        addClient(clientId);
         setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ event: "ready", data: "Online" }));
@@ -135,6 +134,8 @@ app.post("/send-message", (req, res) => {
       }) + "\n"
     );
 
+    addClient(clientId);
+
     // processEntry.child.stdout.on('data', (data) => {
     //   res.status(200).json({
     //     success: true,
@@ -151,6 +152,7 @@ app.post("/send-message", (req, res) => {
 
   } catch (err) {
     console.error("Error sending message via API:", err);
+    deleteClient(clientId);
     res.status(500).json({
       success: false,
       data: "Failed to send message.",
