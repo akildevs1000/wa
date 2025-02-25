@@ -19,7 +19,6 @@ pm2.connect((err) => {
     }
 
     clientIds.forEach((clientId) => {
-        if (clientId === "AE00027") {
             if (runningProcesses[clientId]) {
                 console.log(`Process for ${clientId} is already running. Skipping.`);
                 return;
@@ -47,7 +46,6 @@ pm2.connect((err) => {
                 // Save updated processes list
                 fs.writeFileSync(processesFile, JSON.stringify(runningProcesses, null, 2));
             });
-        }
     });
 
     // Disconnect from PM2 after a delay to allow processes to start
