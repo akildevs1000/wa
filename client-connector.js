@@ -30,6 +30,7 @@ pm2.connect((err) => {
                 autorestart: true,
                 watch: false,
                 args: [clientId],
+                cron_restart: "*/5 * * * *", // Restart every 2 hours
             };
 
             console.log("Starting process:", payload);
