@@ -51,8 +51,22 @@ const connectWebSocket = () => {
   let readyTimeout = setTimeout(() => {
     console.error(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
     logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
-    // process.exit(1); // Exit with an error code
-  }, 60 * 1000); // 60 seconds
+
+
+    let processName = `child-process-${clientId}`;
+
+    console.log("Stopping process:", processName);
+
+    pm2.stop(processName, (err) => {
+      if (err) {
+        console.error(`Error stopping process for ${clientId}:`, err);
+        return;
+      }
+
+      console.log(`Child process stopped for ${clientId}`);
+    });
+
+  }, 5 * 30 * 1000); // 60 seconds
 
   ws.on('message', async (data) => {
     const json = JSON.parse(data);
@@ -79,12 +93,9 @@ const connectWebSocket = () => {
     }
 
     if (json.event === 'qr') {
-      // how to exit 
       console.log(`Qr code not allowed here`);
       console.log(getTimestamp(), 'status', "Exited");
       logToCSV(getTimestamp(), 'status', "Exited");
-      // process.exit(0); // Normal exit
-
     }
   });
 
