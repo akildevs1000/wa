@@ -21,8 +21,6 @@ const getTimestamp = () => {
   return new Date().toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
 };
 
-let counter = 0;
-
 // Path for the CSV log file
 const csvFilePath = path.join(__dirname, `${clientId}_logs.csv`);
 
@@ -49,16 +47,25 @@ const connectWebSocket = () => {
     logToCSV(getTimestamp(), 'open', message);
   });
 
+  // Set a 1-minute timeout for the "ready" event
+  let readyTimeout = setTimeout(() => {
+    console.error(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
+    logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
+    process.exit(1); // Exit with an error code
+  }, 60 * 1000); // 60 seconds
+
   ws.on('message', async (data) => {
     const json = JSON.parse(data);
 
     if (json.event === 'status') {
-      const message = `[${getTimestamp()}] Status: ${json.data}, Counter: ${++counter}`;
+      const message = `[${getTimestamp()}] Status: ${json.data}`;
+      // how to exit if it takes more time
       console.log(message);
       logToCSV(getTimestamp(), 'status', json.data);
     }
 
     if (json.event === 'ready') {
+      clearTimeout(readyTimeout); // Stop the timeout when "ready" event is received
       const message = `[${getTimestamp()}] ${json.data}`;
       console.log(message);
       logToCSV(getTimestamp(), 'ready', json.data);
@@ -72,31 +79,12 @@ const connectWebSocket = () => {
     }
 
     if (json.event === 'qr') {
+      // how to exit 
+      console.log(`Qr code not allowed here`);
       console.log(getTimestamp(), 'status', "Exited");
       logToCSV(getTimestamp(), 'status', "Exited");
-      process.exit(1);
-      const qrCodeData = json.data;
+      process.exit(0); // Normal exit
 
-      try {
-        // Specify the output file path
-        const filePath = path.join(__dirname, `${clientId}_qrCode.png`); // Save the file in the current directory
-
-        // Generate and save the QR code as a PNG file
-        await QRCode.toFile(filePath, qrCodeData, {
-          color: {
-            dark: '#000000', // Black QR code
-            light: '#ffffff', // White background
-          },
-        });
-
-        const message = `[${getTimestamp()}] QR Code saved to ${filePath}`;
-        console.log(message);
-        logToCSV(getTimestamp(), 'qr', `QR Code saved to ${filePath}`);
-      } catch (error) {
-        const errorMessage = `[${getTimestamp()}] Error generating QR code: ${error.message}`;
-        console.error(errorMessage);
-        logToCSV(getTimestamp(), 'error', error.message);
-      }
     }
   });
 
@@ -110,7 +98,6 @@ const connectWebSocket = () => {
     const message = `[${getTimestamp()}] WebSocket connection closed.`;
     console.log(message);
     logToCSV(getTimestamp(), 'close', 'Connection closed');
-    process.exit(1);
 
     // Reconnect only if the closure wasn't manually triggered
     if (!isManuallyClosed) {
