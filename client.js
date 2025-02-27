@@ -18,7 +18,10 @@ let isManuallyClosed = false;
 
 // Helper function to get the current timestamp
 const getTimestamp = () => {
-  return new Date().toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
+  const now = new Date();
+  const offset = now.getTimezoneOffset(); // Get the time zone offset in minutes
+  now.setMinutes(now.getMinutes() - offset); // Adjust the time based on the offset
+  return now.toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
 };
 
 // Path for the CSV log file
