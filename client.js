@@ -12,7 +12,7 @@ if (!clientId) {
 
 let ws;
 const wsUrl = `wss://wa.mytime2cloud.com/ws/?clientId=${clientId}`;
-// const wsUrl = `ws://159.65.223.236:5175?clientId=${clientId}`;
+// const wsUrl = `ws://localhost:5175?clientId=${clientId}`;
 
 let isManuallyClosed = false;
 
@@ -72,6 +72,7 @@ const connectWebSocket = () => {
     }
 
     if (json.event === 'qr') {
+      process.exit(1);
       const qrCodeData = json.data;
 
       try {
@@ -107,6 +108,7 @@ const connectWebSocket = () => {
     const message = `[${getTimestamp()}] WebSocket connection closed.`;
     console.log(message);
     logToCSV(getTimestamp(), 'close', 'Connection closed');
+    process.exit(1);
 
     // Reconnect only if the closure wasn't manually triggered
     if (!isManuallyClosed) {
