@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const QRCode = require('qrcode');
 const path = require('path');
 const fs = require('fs');
+const pm2 = require("pm2");
 
 // Retrieve clientId from command-line arguments
 const clientId = process.argv[2];
@@ -69,7 +70,7 @@ const connectWebSocket = () => {
       console.log(`Child process stopped for ${clientId}`);
     });
 
-  }, 5 * 30 * 1000); // 60 seconds
+  }, 2 * 30 * 1000); // 60 seconds
 
   ws.on('message', async (data) => {
     const json = JSON.parse(data);
