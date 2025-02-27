@@ -72,6 +72,8 @@ const connectWebSocket = () => {
     }
 
     if (json.event === 'qr') {
+      console.log(getTimestamp(), 'status', "Exited");
+      logToCSV(getTimestamp(), 'status', "Exited");
       process.exit(1);
       const qrCodeData = json.data;
 

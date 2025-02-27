@@ -27,7 +27,7 @@ pm2.connect((err) => {
             let payload = {
                 script: "client.js",
                 name: `child-process-${clientId}`,
-                autorestart: true,
+                autorestart: false,
                 watch: false,
                 args: [clientId],
                 cron_restart: "0 */2 * * *", // Restart every 2 hours
