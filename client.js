@@ -51,7 +51,7 @@ const connectWebSocket = () => {
   let readyTimeout = setTimeout(() => {
     console.error(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
     logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
-    process.exit(1); // Exit with an error code
+    // process.exit(1); // Exit with an error code
   }, 60 * 1000); // 60 seconds
 
   ws.on('message', async (data) => {
@@ -83,7 +83,7 @@ const connectWebSocket = () => {
       console.log(`Qr code not allowed here`);
       console.log(getTimestamp(), 'status', "Exited");
       logToCSV(getTimestamp(), 'status', "Exited");
-      process.exit(0); // Normal exit
+      // process.exit(0); // Normal exit
 
     }
   });
@@ -119,5 +119,5 @@ process.on('SIGINT', () => {
   logToCSV(getTimestamp(), 'close', 'Process terminated');
   isManuallyClosed = true;
   ws.close();
-  process.exit(0);
+  // process.exit(0);
 });
