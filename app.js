@@ -64,6 +64,14 @@ process.stdin.on("data", (data) => {
   try {
     const message = JSON.parse(data.toString().trim());
 
+    if (message.event === "destroy") {
+      sendToParent({
+        event: "status",
+        data: "You can only delete whatsapp from your phone.",
+      });
+
+    }
+
     if (message.event === "sendMessage") {
       const { recipient, text } = message;
 
@@ -81,32 +89,31 @@ process.stdin.on("data", (data) => {
         .sendMessage(recipientId, text)
         .then(() => {
           sendToParent({
-            event: "sendMessage",
+            event: "sendMessageAck",
+            success: true,
             data: `Message sent to ${recipient}.`,
           });
         })
         .catch((err) => {
           sendToParent({
-            event: "sendMessage",
-            data: `Unknown action: ${err.message}`,
+            event: "sendMessageAck",
+            success: false,
+            data: `Failed to send message: ${err.message}`,
           });
         });
-    }
-
-    if (message.event === "destroy") {
+    } else {
       sendToParent({
-        event: "status",
-        data: "You can only delete whatsapp from your phone.",
+        event: "error",
+        data: `Unknown event: ${message.event}`,
       });
 
     }
   } catch (err) {
     sendToParent({
-      event: "unknown",
-      data: "Unknown Error",
+      event: "error",
+      data: `Invalid message format: ${err.message}`,
     });
   }
 });
 
-// Start the client
 client.initialize();

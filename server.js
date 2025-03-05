@@ -58,8 +58,9 @@ function runScript(clientId, ws) {
 
   // Handle errors from the child process
   child.stderr.on("data", (data) => {
+    console.error(`Error from child process ${clientId}:`, data.toString());
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(data));
+      ws.send(JSON.stringify({ event: "error", data: data.toString() }));
     }
   });
 
@@ -69,6 +70,7 @@ function runScript(clientId, ws) {
       ws.send(JSON.stringify(data));
     }
     delete processes[clientId];
+    deleteClient(clientId); // Ensure cleanup
   });
 }
 
@@ -125,40 +127,45 @@ app.post("/send-message", (req, res) => {
     });
   }
 
-  try {
-    processEntry.child.stdin.write(
-      JSON.stringify({
-        event: "sendMessage",
-        recipient,
-        text,
-      }) + "\n"
-    );
+  // Send message to child process
+  processEntry.child.stdin.write(
+    JSON.stringify({ event: "sendMessage", recipient, text }) + "\n"
+  );
 
-    addClient(clientId);
+  // Listen for acknowledgment from child process
+  processEntry.child.stdout.once("data", (data) => {
+    try {
+      const ack = JSON.parse(data.toString().trim());
 
-    // processEntry.child.stdout.on('data', (data) => {
-    //   res.status(200).json({
-    //     success: true,
-    //     data: `Message to ${recipient} is being processed.`,
-    //     response: JSON.parse(data.toString().trim())
-    //   });
-    // });
-
-    res.status(200).json({
-      success: true,
-      data: `Message to ${recipient} is being processed.`
-    });
-
-
-  } catch (err) {
-    console.error("Error sending message via API:", err);
-    deleteClient(clientId);
-    res.status(500).json({
-      success: false,
-      data: "Failed to send message.",
-      error: err.message,
-    });
-  }
+      if (ack.event === "sendMessageAck") {
+        if (ack.success) {
+          // Send success response to the HTTP client
+          res.status(200).json({
+            success: true,
+            data: ack.data, // "Message sent to <recipient>."
+          });
+        } else {
+          // Send error response to the HTTP client
+          res.status(500).json({
+            success: false,
+            data: ack.data, // "Failed to send message: <error>."
+          });
+        }
+      } else {
+        // Handle unknown events
+        res.status(500).json({
+          success: false,
+          data: `Unexpected event: ${ack.event}`,
+        });
+      }
+    } catch (err) {
+      // Handle JSON parsing errors
+      res.status(500).json({
+        success: false,
+        data: `Failed to parse acknowledgment: ${err.message}`,
+      });
+    }
+  });
 });
 
 // Start the HTTP server
