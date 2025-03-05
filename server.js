@@ -21,10 +21,12 @@ const wss = new WebSocket.Server({ port: WS_PORT });
 
 // Function to run a script with a specific argument
 function runScript(clientId, ws) {
+  
   if (processes[clientId]) {
     processes[clientId].child.kill();
     delete processes[clientId];
   }
+  console.log(processes);
 
   const child = spawn("node", ["app.js", clientId]);
 
@@ -140,6 +142,7 @@ app.post("/send-message", (req, res) => {
       if (ack.event === "sendMessageAck") {
         if (ack.success) {
           // Send success response to the HTTP client
+          addClient(clientId);
           res.status(200).json({
             success: true,
             data: ack.data, // "Message sent to <recipient>."
