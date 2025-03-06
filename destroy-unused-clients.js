@@ -3,7 +3,7 @@ const path = require("path");
 
 const sessionBasePath = path.join(__dirname, ".wwebjs_auth");
 const logFilePath = path.join(__dirname, "logs/destroy-unused-clients.log");
-const oneMonthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days ago (approximate for 1 month)
+const oneMonthAgo = Date.now() - 2 * 24 * 60 * 60 * 1000; // 2 days ago
 
 
 console.log("Checking for old session folders...");
