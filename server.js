@@ -35,7 +35,15 @@ function runScript(clientId, ws) {
   // Handle messages from the child process
   child.stdout.on("data", (data) => {
     try {
-      const message = JSON.parse(data.toString().trim());
+
+      const rawData = data.toString().trim();
+
+        // Return if data is not valid JSON
+        if (!rawData.startsWith("{") || !rawData.endsWith("}")) {
+            return;
+        }
+
+      const message = JSON.parse(rawData);
 
       if (message.event === "auth_failure" || message.event === "disconnected") {
         console.log("🚀 ~ child.stdout.on ~ message:", message.event)
