@@ -26,8 +26,6 @@ function runScript(clientId, ws) {
     processes[clientId].child.kill();
     delete processes[clientId];
   }
-  console.log(processes);
-
   const child = spawn("node", ["app.js", clientId]);
 
   processes[clientId] = { child, ws };
