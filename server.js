@@ -78,7 +78,7 @@ function runScript(clientId, ws) {
       ws.send(JSON.stringify(data));
     }
     delete processes[clientId];
-    deleteClient(clientId); // Ensure cleanup
+    // deleteClient(clientId); // Ensure cleanup
   });
 }
 
