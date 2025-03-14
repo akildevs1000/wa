@@ -3,7 +3,7 @@ const path = require("path");
 
 const sessionBasePath = path.join(__dirname, ".wwebjs_auth");
 const logFilePath = path.join(__dirname, "logs/destroy-unused-clients.log");
-const oneMonthAgo = Date.now() - 2 * 24 * 60 * 60 * 1000; // 2 days ago
+const tenDaysAgo = Date.now() - 10 * 24 * 60 * 60 * 1000; // 2 days ago
 
 
 console.log("Checking for old session folders...");
@@ -13,7 +13,7 @@ logMessage("Checking for old session folders...");
 function logMessage(message) {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${message}\n`;
-    fs.appendFileSync(logFilePath, logEntry);
+    // fs.appendFileSync(logFilePath, logEntry);
     console.log(message);
 }
 
@@ -72,7 +72,7 @@ if (fs.existsSync(sessionBasePath)) {
             const logEntry = `📂 Session: ${folder} | 🕒 Last Modified: ${lastModifiedDate} | 📦 Size: ${folderSizeMB} MB`;
             logMessage(logEntry);
 
-            if (lastModified < oneMonthAgo) {
+            if (lastModified < tenDaysAgo) {
                 fs.rmSync(folderPath, { recursive: true, force: true });
                 logMessage(`🗑️ Deleted: ${folder}`);
             } else {
