@@ -31,7 +31,7 @@ axios.get(apiUrl)
 
                 let payload = {
                     script: "client.js",
-                    name: `child-process-${clientId}`,
+                    name: `${clientId}`,
                     autorestart: false,
                     watch: false,
                     args: [clientId],
