@@ -6,6 +6,13 @@ const logFilePath = path.join(__dirname, "logs/destroy-unused-clients.log");
 const tenDaysAgo = Date.now() - 10 * 24 * 60 * 60 * 1000; // 2 days ago
 
 
+// Ensure the logs directory exists
+const logDir = path.dirname(logFilePath);
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true }); // Create logs directory
+}
+
+
 console.log("Checking for old session folders...");
 logMessage("Checking for old session folders...");
 
