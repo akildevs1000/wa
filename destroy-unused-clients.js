@@ -13,7 +13,7 @@ logMessage("Checking for old session folders...");
 function logMessage(message) {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${message}\n`;
-    // fs.appendFileSync(logFilePath, logEntry);
+    fs.appendFileSync(logFilePath, logEntry);
     console.log(message);
 }
 
