@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const pm2 = require("pm2");
 
+let maxRetry = 0
+
 // Retrieve clientId from command-line arguments
 const clientId = process.argv[2];
 if (!clientId) {
@@ -67,10 +69,10 @@ const connectWebSocket = () => {
         return;
       }
 
-      console.log(`Child process stopped for ${clientId}`);
+      console.log(`stopped for ${clientId}`);
     });
 
-  }, 1 * 60 * 1000); // 60 seconds
+  }, 30 * 60 * 1000); // 60 seconds
 
   ws.on('message', async (data) => {
     const json = JSON.parse(data);
@@ -97,9 +99,25 @@ const connectWebSocket = () => {
     }
 
     if (json.event === 'qr') {
+      if (maxRetry > 5) {
+        console.log(getTimestamp(), 'status', "Retry limit exceed");
+        logToCSV(getTimestamp(), 'status', "Retry limit exceed");
+
+        console.log("Stopping process:", processName);
+
+        pm2.stop(processName, (err) => {
+          if (err) {
+            console.error(`Error stopping process for ${clientId}:`, err);
+            return;
+          }
+
+          console.log(`stopped for ${clientId}`);
+        });
+      }
       console.log(`Qr code not allowed here`);
       console.log(getTimestamp(), 'status', "Exited");
       logToCSV(getTimestamp(), 'status', "Exited");
+      maxRetry++;
     }
   });
 
