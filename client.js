@@ -96,6 +96,8 @@ const connectWebSocket = () => {
     }
 
     if (json.event === 'qr') {
+      maxRetry++;
+
       if (maxRetry > 5) {
         console.log(getTimestamp(), 'status', "Retry limit exceed");
         logToCSV(getTimestamp(), 'status', "Retry limit exceed");
@@ -112,9 +114,8 @@ const connectWebSocket = () => {
         });
       }
       console.log(`Qr code not allowed here`);
-      console.log(getTimestamp(), 'status', "Exited. Tried " + maxRetry + "Times");
+      console.log(getTimestamp(), 'status', "Exited. Tried " + maxRetry + " Times");
       logToCSV(getTimestamp(), 'status', "Exited. Tried" + maxRetry + "Times");
-      maxRetry++;
     }
   });
 
