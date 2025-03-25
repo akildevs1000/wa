@@ -70,7 +70,7 @@ const connectWebSocket = () => {
       console.log(`Child process stopped for ${clientId}`);
     });
 
-  }, 2 * 30 * 1000); // 60 seconds
+  }, 30 * 60 * 1000); // 60 seconds
 
   ws.on('message', async (data) => {
     const json = JSON.parse(data);
