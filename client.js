@@ -57,7 +57,7 @@ const connectWebSocket = () => {
     logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
 
 
-    let processName = `child-process-${clientId}`;
+    let processName = clientId;
 
     console.log("Stopping process:", processName);
 
