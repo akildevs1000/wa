@@ -58,12 +58,9 @@ const connectWebSocket = () => {
     console.error(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
     logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
 
+    console.log("Stopping process:", clientId);
 
-    let processName = clientId;
-
-    console.log("Stopping process:", processName);
-
-    pm2.stop(processName, (err) => {
+    pm2.stop(clientId, (err) => {
       if (err) {
         console.error(`Error stopping process for ${clientId}:`, err);
         return;
@@ -103,9 +100,9 @@ const connectWebSocket = () => {
         console.log(getTimestamp(), 'status', "Retry limit exceed");
         logToCSV(getTimestamp(), 'status', "Retry limit exceed");
 
-        console.log("Stopping process:", processName);
+        console.log("Stopping process:", clientId);
 
-        pm2.stop(processName, (err) => {
+        pm2.stop(clientId, (err) => {
           if (err) {
             console.error(`Error stopping process for ${clientId}:`, err);
             return;
