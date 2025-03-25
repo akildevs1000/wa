@@ -115,8 +115,8 @@ const connectWebSocket = () => {
         });
       }
       console.log(`Qr code not allowed here`);
-      console.log(getTimestamp(), 'status', "Exited");
-      logToCSV(getTimestamp(), 'status', "Exited");
+      console.log(getTimestamp(), 'status', "Exited. Tried " + maxRetry + "Times");
+      logToCSV(getTimestamp(), 'status', "Exited. Tried" + maxRetry + "Times");
       maxRetry++;
     }
   });
