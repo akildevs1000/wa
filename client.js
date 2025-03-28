@@ -150,5 +150,5 @@ process.on('SIGINT', () => {
   logToCSV(getTimestamp(), 'close', 'Process terminated');
   isManuallyClosed = true;
   ws.close();
-  // process.exit(0);
+  process.exit(0);
 });
