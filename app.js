@@ -1,5 +1,7 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const fs = require("fs");
+const puppeteer = require('puppeteer');
+
 
 // Get clientId from command-line arguments
 const args = process.argv.slice(2);
@@ -21,9 +23,9 @@ const client = new Client({
     clientId: clientId, // Use the provided client ID
   }),
   puppeteer: {
-    // headless: true,
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath: "/snap/bin/chromium", // Replace with your Chromium path
+    // executablePath: "/snap/bin/chromium", // Replace with your Chromium path
   },
 });
 
