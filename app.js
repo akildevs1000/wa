@@ -21,7 +21,7 @@ const client = new Client({
     clientId: clientId, // Use the provided client ID
   }),
   puppeteer: {
-    headless: true,
+    // headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
     executablePath: "/snap/bin/chromium", // Replace with your Chromium path
   },
