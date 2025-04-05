@@ -52,14 +52,6 @@ client.on("ready", () => {
   sendToParent({ event: "ready", data: `Online` });
 });
 
-client.on("message", (message) => {
-  sendToParent({
-    event: "sendMessageAck",
-    success: true,
-    data: `New message from:" ${message.from.split('@')[0]}.`,
-  });
-});
-
 // Handle authentication failure
 client.on("auth_failure", (msg) => {
   sendToParent({ event: "auth_failure", data: msg });
