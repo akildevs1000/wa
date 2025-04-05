@@ -52,6 +52,11 @@ client.on("ready", () => {
   sendToParent({ event: "ready", data: `Online` });
 });
 
+client.on("message", (message) => {
+  const number = message.from.split('@')[0]; // Phone number
+  console.log("New message from:", number);
+});
+
 // Handle authentication failure
 client.on("auth_failure", (msg) => {
   sendToParent({ event: "auth_failure", data: msg });
