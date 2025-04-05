@@ -53,8 +53,11 @@ client.on("ready", () => {
 });
 
 client.on("message", (message) => {
-  const number = message.from.split('@')[0]; // Phone number
-  console.log("New message from:", number);
+  sendToParent({
+    event: "sendMessageAck",
+    success: true,
+    data: `New message from:" ${message.from.split('@')[0]}.`,
+  });
 });
 
 // Handle authentication failure

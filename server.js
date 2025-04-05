@@ -144,6 +144,7 @@ app.post("/send-message", (req, res) => {
   processEntry.child.stdout.once("data", (data) => {
     try {
       const ack = JSON.parse(data.toString().trim());
+      console.log("🚀 ~ processEntry.child.stdout.once ~ ack:", ack)
 
       if (ack.event === "sendMessageAck") {
         if (ack.success) {
