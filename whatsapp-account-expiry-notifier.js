@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 
-const IGNORED_PROCESSES = ['pm2-client-connector', 'client-unused-whatsapp-client'];
+const IGNORED_PROCESSES = ['pm2-client-connector', 'unused-whatsapp-client'];
 
 exec('pm2 jlist', (error, stdout, stderr) => {
     if (error) return res.status(500).json({ error: error.message });
