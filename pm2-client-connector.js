@@ -55,6 +55,8 @@ function pm2Start(folder) {
             return;
         }
 
+        //From terminal => pm2 start client.js --name "clientId"  --cron-restart "0 * * * *" -- clientId
+
         let payload = {
             script: "client.js",
             name: `${clientId}`,
