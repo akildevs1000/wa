@@ -11,7 +11,7 @@ if (fs.existsSync(processesFile)) {
     runningProcesses = JSON.parse(fs.readFileSync(processesFile, "utf8"));
 }
 
-const twoHourAgo = Date.now() - 2 * 60 * 60 * 1000; // 2 hour ago
+const daysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
 
 // Ensure the session directory exists
 if (fs.existsSync(sessionBasePath)) {
@@ -27,7 +27,7 @@ if (fs.existsSync(sessionBasePath)) {
             const lastModified = stats.mtime.getTime();
 
 
-            if (lastModified > twoHourAgo) {
+            if (lastModified > daysAgo) {
                 pm2Start(folder);
             }
         } catch (err) {
