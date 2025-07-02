@@ -21,10 +21,21 @@ let isManuallyClosed = false;
 
 // Helper function to get the current timestamp
 const getTimestamp = () => {
-  const now = new Date();
-  const offset = now.getTimezoneOffset(); // Get the time zone offset in minutes
-  now.setMinutes(now.getMinutes() - offset); // Adjust the time based on the offset
-  return now.toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Dubai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(new Date());
+  const dateParts = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+
+  return `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}`;
 };
 
 // Path for the CSV log file

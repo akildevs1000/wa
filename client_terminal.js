@@ -27,7 +27,21 @@ let isManuallyClosed = false;
 
 // Helper function to get the current timestamp
 const getTimestamp = () => {
-  return new Date().toISOString(); // Format: YYYY-MM-DDTHH:mm:ss.sssZ
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Dubai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(new Date());
+  const dateParts = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+
+  return `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}`;
 };
 
 // Path for the CSV log file
@@ -60,7 +74,7 @@ const connectWebSocket = () => {
     console.log("🚀 ~ ws.on ~ data:", data.toString())
     const json = JSON.parse(data);
 
-    if(!json) return;
+    if (!json) return;
 
     console.log(json);
 
