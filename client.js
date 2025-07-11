@@ -61,13 +61,13 @@ const connectWebSocket = () => {
   ws.on('open', () => {
     const message = `[${getTimestamp()}] Connected to the WebSocket server with clientId: ${clientId}`;
     console.log(message);
-    logToCSV(getTimestamp(), 'open', message);
+    // logToCSV(getTimestamp(), 'open', message);
   });
 
   // Set a 1-minute timeout for the "ready" event
   let readyTimeout = setTimeout(() => {
     console.error(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
-    logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
+    // logToCSV(getTimestamp(), 'status', "Timeout: No 'ready' event received. Exiting...");
 
     console.log("Stopping process:", clientId);
 
@@ -89,7 +89,7 @@ const connectWebSocket = () => {
       const message = `[${getTimestamp()}] Status: ${json.data}`;
       // how to exit if it takes more time
       console.log(message);
-      logToCSV(getTimestamp(), 'status', json.data);
+      // logToCSV(getTimestamp(), 'status', json.data);
     }
 
     if (json.event === 'ready') {
@@ -103,7 +103,7 @@ const connectWebSocket = () => {
     if (json.event === 'heartbeat') {
       const message = `[${getTimestamp()}] ${json.data}`;
       console.log(message);
-      logToCSV(getTimestamp(), 'heartbeat', json.data);
+      // logToCSV(getTimestamp(), 'heartbeat', json.data);
     }
 
     if (json.event === 'qr') {
@@ -111,7 +111,7 @@ const connectWebSocket = () => {
 
       if (maxRetry > 5) {
         console.log(getTimestamp(), 'status', "Retry limit exceed");
-        logToCSV(getTimestamp(), 'status', "Retry limit exceed");
+        // logToCSV(getTimestamp(), 'status', "Retry limit exceed");
 
         console.log("Stopping process:", clientId);
 
@@ -126,26 +126,26 @@ const connectWebSocket = () => {
       }
       console.log(`Qr code not allowed here`);
       console.log(getTimestamp(), 'status', "Exited. Tried " + maxRetry + " Times");
-      logToCSV(getTimestamp(), 'status', "Exited. Tried" + maxRetry + "Times");
+      // logToCSV(getTimestamp(), 'status', "Exited. Tried" + maxRetry + "Times");
     }
   });
 
   ws.on('error', (error) => {
     const errorMessage = `[${getTimestamp()}] WebSocket error: ${error.message}`;
     console.error(errorMessage);
-    logToCSV(getTimestamp(), 'error', error.message);
+    // logToCSV(getTimestamp(), 'error', error.message);
   });
 
   ws.on('close', () => {
     const message = `[${getTimestamp()}] WebSocket connection closed.`;
     console.log(message);
-    logToCSV(getTimestamp(), 'close', 'Connection closed');
+    // logToCSV(getTimestamp(), 'close', 'Connection closed');
 
     // Reconnect only if the closure wasn't manually triggered
     if (!isManuallyClosed) {
       const reconnectMessage = `[${getTimestamp()}] Attempting to reconnect in 5 seconds...`;
       console.log(reconnectMessage);
-      logToCSV(getTimestamp(), 'reconnect', 'Attempting to reconnect in 5 seconds');
+      // logToCSV(getTimestamp(), 'reconnect', 'Attempting to reconnect in 5 seconds');
       setTimeout(connectWebSocket, 5000); // Retry after 5 seconds
     }
   });
@@ -158,7 +158,7 @@ connectWebSocket();
 process.on('SIGINT', () => {
   const message = `[${getTimestamp()}] Closing WebSocket connection...`;
   console.log(message);
-  logToCSV(getTimestamp(), 'close', 'Process terminated');
+  // logToCSV(getTimestamp(), 'close', 'Process terminated');
   isManuallyClosed = true;
   ws.close();
   process.exit(0);
