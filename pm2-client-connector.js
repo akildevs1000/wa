@@ -55,15 +55,13 @@ function pm2Start(folder) {
             return;
         }
 
-        //From terminal => pm2 start client.js --name "clientId"  --cron-restart "0 * * * *" -- clientId
-
         let payload = {
             script: "client.js",
             name: `${clientId}`,
             autorestart: false,
             watch: false,
             args: [clientId],
-            cron_restart: "0 * * * *", // Restart every 1 hours
+            cron_restart: "0 * * * *", // Restart every 1 hour
         };
 
         console.log("Starting process:", payload);
@@ -79,11 +77,16 @@ function pm2Start(folder) {
 
             // Save updated processes list
             fs.writeFileSync(processesFile, JSON.stringify(runningProcesses, null, 2));
-        });
 
-        // Disconnect from PM2 after a delay to allow processes to start
-        setTimeout(() => {
-            pm2.disconnect();
-        }, 2000);
+            // Now save the PM2 process list for reboot persistence
+            pm2.save((err) => {
+                if (err) {
+                    console.error('Error saving PM2 process list:', err);
+                } else {
+                    console.log('PM2 process list saved successfully.');
+                }
+                pm2.disconnect(); // Disconnect after save is done
+            });
+        });
     });
 }
