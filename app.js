@@ -75,7 +75,7 @@ process.stdin.on("data", (data) => {
     }
 
     if (message.event === "sendMessage") {
-      const { recipient, text } = message;
+      const { recipient, text, mediaUrl } = message;
 
       if (!recipient || !text) {
         sendToParent({
@@ -87,23 +87,55 @@ process.stdin.on("data", (data) => {
 
       const recipientId = `${recipient}@c.us`;
 
-      client
-        .sendMessage(recipientId, text)
-        .then(() => {
-          sendToParent({
-            event: "sendMessageAck",
-            success: true,
-            data: `Message sent to ${recipient}.`,
+      // Check if mediaUrl is provided
+      if (mediaUrl) {
+        // Send media with caption
+        const axios = require('axios');
+        const { MessageMedia } = require('whatsapp-web.js');
+
+        axios.get(mediaUrl, { responseType: 'arraybuffer' })
+          .then(response => {
+            const mediaBuffer = Buffer.from(response.data, 'binary');
+            const media = new MessageMedia('application/pdf', mediaBuffer.toString('base64'), 'document.pdf');
+
+            return client.sendMessage(recipientId, media, { caption: text });
+          })
+          .then(() => {
+            sendToParent({
+              event: "sendMessageAck",
+              success: true,
+              data: `Media message sent to ${recipient}.`,
+            });
+          })
+          .catch((err) => {
+            sendToParent({
+              event: "sendMessageAck",
+              success: false,
+              data: `Failed to send media message: ${err.message}`,
+            });
           });
-        })
-        .catch((err) => {
-          sendToParent({
-            event: "sendMessageAck",
-            success: false,
-            data: `Failed to send message: ${err.message}`,
+
+      } else {
+        // Send plain text
+        client
+          .sendMessage(recipientId, text)
+          .then(() => {
+            sendToParent({
+              event: "sendMessageAck",
+              success: true,
+              data: `Text message sent to ${recipient}.`,
+            });
+          })
+          .catch((err) => {
+            sendToParent({
+              event: "sendMessageAck",
+              success: false,
+              data: `Failed to send text message: ${err.message}`,
+            });
           });
-        });
-    } else {
+      }
+    }
+    else {
       sendToParent({
         event: "error",
         data: `Unknown event: ${message.event}`,

@@ -115,9 +115,8 @@ wss.on("connection", (ws, req) => {
   });
 });
 
-// Add an HTTP endpoint to send messages
 app.post("/send-message", (req, res) => {
-  const { clientId, recipient, text } = req.body;
+  const { clientId, recipient, text, mediaUrl } = req.body;
 
   if (!clientId || !recipient || !text) {
     return res.status(400).json({
@@ -127,7 +126,6 @@ app.post("/send-message", (req, res) => {
   }
 
   const processEntry = processes[clientId];
-
   if (!processEntry) {
     return res.status(404).json({
       success: false,
@@ -137,7 +135,7 @@ app.post("/send-message", (req, res) => {
 
   // Send message to child process
   processEntry.child.stdin.write(
-    JSON.stringify({ event: "sendMessage", recipient, text }) + "\n"
+    JSON.stringify({ event: "sendMessage", recipient, text, mediaUrl }) + "\n"
   );
 
   // Listen for acknowledgment from child process
@@ -146,32 +144,20 @@ app.post("/send-message", (req, res) => {
       const ack = JSON.parse(data.toString().trim());
 
       if (ack.event === "sendMessageAck") {
-
         console.log(`✅ ${ack.data}`);
-
         if (ack.success) {
-          // Send success response to the HTTP client
           addClient(clientId);
-          res.status(200).json({
-            success: true,
-            data: ack.data, // "Message sent to <recipient>."
-          });
+          res.status(200).json({ success: true, data: ack.data });
         } else {
-          // Send error response to the HTTP client
-          res.status(500).json({
-            success: false,
-            data: ack.data, // "Failed to send message: <error>."
-          });
+          res.status(500).json({ success: false, data: ack.data });
         }
       } else {
-        // Handle unknown events
         res.status(500).json({
           success: false,
           data: `Unexpected event: ${ack.event}`,
         });
       }
     } catch (err) {
-      // Handle JSON parsing errors
       res.status(500).json({
         success: false,
         data: `Failed to parse acknowledgment: ${err.message}`,
@@ -179,6 +165,7 @@ app.post("/send-message", (req, res) => {
     }
   });
 });
+
 
 // Start the HTTP server
 app.listen(HTTP_PORT, () => {
