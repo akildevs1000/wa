@@ -61,7 +61,7 @@ function pm2Start(folder) {
             autorestart: false,
             watch: false,
             args: [clientId],
-            cron_restart: "0 * * * *", // Restart every 1 hour
+            cron_restart: "0 */4 * * *", // Restart every 4 hours on the hour
         };
 
         console.log("Starting process:", payload);
