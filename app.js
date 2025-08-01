@@ -1,7 +1,7 @@
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, LocalAuth,MessageMedia } = require("whatsapp-web.js");
 const fs = require("fs");
 const puppeteer = require('puppeteer');
-
+const axios = require("axios");
 
 // Get clientId from command-line arguments
 const args = process.argv.slice(2);
@@ -87,18 +87,23 @@ process.stdin.on("data", (data) => {
 
       const recipientId = `${recipient}@c.us`;
 
-      // Check if mediaUrl is provided
       if (mediaUrl) {
-        // Send media with caption
-        const axios = require('axios');
-        const { MessageMedia } = require('whatsapp-web.js');
+        
 
-        axios.get(mediaUrl, { responseType: 'arraybuffer' })
+        axios.get(mediaUrl, { responseType: "arraybuffer" })
           .then(response => {
-            const mediaBuffer = Buffer.from(response.data, 'binary');
-            const media = new MessageMedia('application/pdf', mediaBuffer.toString('base64'), 'document.pdf');
+            const contentType = response.headers["content-type"];
+            const filename = mediaUrl.split("/").pop();
 
-            return client.sendMessage(recipientId, media, { caption: text });
+            const media = new MessageMedia(
+              contentType,
+              Buffer.from(response.data).toString("base64"),
+              filename
+            );
+
+            return client.sendMessage(recipientId, media, {
+              caption: text || undefined,
+            });
           })
           .then(() => {
             sendToParent({
@@ -107,30 +112,36 @@ process.stdin.on("data", (data) => {
               data: `Media message sent to ${recipient}.`,
             });
           })
-          .catch((err) => {
+          .catch(err => {
             sendToParent({
               event: "sendMessageAck",
               success: false,
-              data: `Failed to send media message: ${err.message}`,
+              data: `Failed to send media: ${err.message}`,
             });
           });
 
       } else {
-        // Send plain text
-        client
-          .sendMessage(recipientId, text)
+        if (!text) {
+          sendToParent({
+            event: "error",
+            data: "Text is required if no mediaUrl is provided.",
+          });
+          return;
+        }
+
+        client.sendMessage(recipientId, text)
           .then(() => {
             sendToParent({
               event: "sendMessageAck",
               success: true,
-              data: `Text message sent to ${recipient}.`,
+              data: `Message sent to ${recipient}.`,
             });
           })
           .catch((err) => {
             sendToParent({
               event: "sendMessageAck",
               success: false,
-              data: `Failed to send text message: ${err.message}`,
+              data: `Failed to send message: ${err.message}`,
             });
           });
       }

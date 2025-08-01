@@ -21,7 +21,7 @@ const wss = new WebSocket.Server({ port: WS_PORT });
 
 // Function to run a script with a specific argument
 function runScript(clientId, ws) {
-  
+
   if (processes[clientId]) {
     processes[clientId].child.kill();
     delete processes[clientId];
@@ -36,10 +36,10 @@ function runScript(clientId, ws) {
 
       const rawData = data.toString().trim();
 
-        // Return if data is not valid JSON
-        if (!rawData.startsWith("{") || !rawData.endsWith("}")) {
-            return;
-        }
+      // Return if data is not valid JSON
+      if (!rawData.startsWith("{") || !rawData.endsWith("}")) {
+        return;
+      }
 
       const message = JSON.parse(rawData);
 
